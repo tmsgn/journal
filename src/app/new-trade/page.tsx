@@ -3,7 +3,7 @@
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useForm } from "react-hook-form";
 import { z } from "zod";
-import { Plus } from "lucide-react";
+import { Plus, Loader2 } from "lucide-react";
 import { toast } from "sonner";
 import { Button } from "@/components/ui/button";
 import {
@@ -41,13 +41,14 @@ import {
   tradeSchema,
   useJournal,
 } from "@/hooks/use-journal";
+import { useState } from "react";
 
 type TradeFormInput = z.input<typeof tradeSchema>;
 
 const defaultValues: TradeFormInput = {
   tradeDate: getTodayDateString(),
   entryTimeframe: "1min",
-  po3Time: "9:30",
+  po3Time: undefined,
   rating: "A",
   rr: 1,
   outcome: "win",
@@ -60,6 +61,7 @@ const defaultValues: TradeFormInput = {
 
 export default function NewTradePage() {
   const { addTrade, hydrated, userId } = useJournal();
+  const [isSubmitting, setIsSubmitting] = useState(false);
 
   const form = useForm<TradeFormInput, unknown, TradeFormValues>({
     resolver: zodResolver(tradeSchema),
@@ -67,7 +69,9 @@ export default function NewTradePage() {
   });
 
   const onSubmit = async (values: TradeFormValues) => {
+    setIsSubmitting(true);
     const { error } = await addTrade(values);
+    setIsSubmitting(false);
     if (error) {
       toast.error(`Failed to save trade: ${error}`);
     } else {
@@ -151,14 +155,25 @@ export default function NewTradePage() {
                 name="po3Time"
                 render={({ field }) => (
                   <FormItem>
-                    <FormLabel className="text-xs">PO3 Time</FormLabel>
-                    <Select value={field.value} onValueChange={field.onChange}>
+                    <FormLabel className="text-xs">
+                      PO3 Time{" "}
+                      <span className="text-muted-foreground font-normal">
+                        (optional)
+                      </span>
+                    </FormLabel>
+                    <Select
+                      value={field.value ?? ""}
+                      onValueChange={(v) =>
+                        field.onChange(v === "none" ? undefined : v)
+                      }
+                    >
                       <FormControl>
                         <SelectTrigger className="w-full">
-                          <SelectValue placeholder="Select PO3" />
+                          <SelectValue placeholder="Not applicable" />
                         </SelectTrigger>
                       </FormControl>
                       <SelectContent>
+                        <SelectItem value="none">Not applicable</SelectItem>
                         {po3TimeOptions.map((o) => (
                           <SelectItem key={o} value={o}>
                             {o}
@@ -344,11 +359,15 @@ export default function NewTradePage() {
               <div className="md:col-span-2 pt-2">
                 <Button
                   type="submit"
-                  disabled={!hydrated}
+                  disabled={!hydrated || isSubmitting}
                   className="gap-2 px-6"
                 >
-                  <Plus className="h-4 w-4" />
-                  Save Trade
+                  {isSubmitting ? (
+                    <Loader2 className="h-4 w-4 animate-spin" />
+                  ) : (
+                    <Plus className="h-4 w-4" />
+                  )}
+                  {isSubmitting ? "Saving…" : "Save Trade"}
                 </Button>
               </div>
             </form>

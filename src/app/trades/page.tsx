@@ -69,6 +69,7 @@ import {
   AlertDialogTitle,
 } from "@/components/ui/alert-dialog";
 import { ScreenshotUploader } from "@/components/screenshot-uploader";
+import { TradeDetailSheet } from "@/components/trade-detail-sheet";
 import { toast } from "sonner";
 import {
   entryTimeframeOptions,
@@ -227,14 +228,25 @@ function EditTradeDialog({
               name="po3Time"
               render={({ field }) => (
                 <FormItem>
-                  <FormLabel>PO3 Time</FormLabel>
-                  <Select value={field.value} onValueChange={field.onChange}>
+                  <FormLabel>
+                    PO3 Time{" "}
+                    <span className="text-muted-foreground font-normal">
+                      (optional)
+                    </span>
+                  </FormLabel>
+                  <Select
+                    value={field.value ?? ""}
+                    onValueChange={(v) =>
+                      field.onChange(v === "none" ? undefined : v)
+                    }
+                  >
                     <FormControl>
                       <SelectTrigger className="w-full">
-                        <SelectValue />
+                        <SelectValue placeholder="Not applicable" />
                       </SelectTrigger>
                     </FormControl>
                     <SelectContent>
+                      <SelectItem value="none">Not applicable</SelectItem>
                       {po3TimeOptions.map((o) => (
                         <SelectItem key={o} value={o}>
                           {o}
@@ -406,6 +418,7 @@ function EditTradeDialog({
 export default function TradesPage() {
   const { trades, deleteTrade } = useJournal();
   const [editTrade, setEditTrade] = useState<Trade | null>(null);
+  const [viewTrade, setViewTrade] = useState<Trade | null>(null);
   const [deleteId, setDeleteId] = useState<string | null>(null);
   const [search, setSearch] = useState("");
   const [sortKey, setSortKey] = useState<SortKey>("tradeDate");
@@ -428,7 +441,7 @@ export default function TradesPage() {
         t.rating.toLowerCase().includes(q) ||
         t.outcome.includes(q) ||
         t.reason.toLowerCase().includes(q) ||
-        t.po3Time.includes(q),
+        (t.po3Time ?? "").includes(q),
     );
     result = [...result].sort((a, b) => {
       const av = a[sortKey];
@@ -452,10 +465,12 @@ export default function TradesPage() {
   };
 
   return (
-    <div className="flex flex-col gap-6 p-6 md:p-8">
+    <div className="flex flex-col gap-4 p-4 md:gap-6 md:p-8">
       <div className="flex items-center justify-between">
         <div className="space-y-0.5">
-          <h1 className="text-2xl font-bold tracking-tight">All Trades</h1>
+          <h1 className="text-xl md:text-2xl font-bold tracking-tight">
+            All Trades
+          </h1>
           <p className="text-muted-foreground text-sm">
             {trades.length} total trade{trades.length !== 1 ? "s" : ""}
           </p>
@@ -503,162 +518,243 @@ export default function TradesPage() {
             </div>
           </div>
         </CardHeader>
-        <CardContent className="p-0 pb-1 overflow-x-auto">
-          <Table>
-            <TableHeader>
-              <TableRow className="border-border/50 hover:bg-transparent">
-                <TableHead className="pl-6">
-                  <SortHeader
-                    col="tradeDate"
-                    label="Date"
-                    active={sortKey}
-                    dir={sortDir}
-                    onClick={handleSort}
-                  />
-                </TableHead>
-                <TableHead>
-                  <SortHeader
-                    col="entryTimeframe"
-                    label="TF"
-                    active={sortKey}
-                    dir={sortDir}
-                    onClick={handleSort}
-                  />
-                </TableHead>
-                <TableHead className="text-xs font-medium text-muted-foreground">
-                  PO3
-                </TableHead>
-                <TableHead>
-                  <SortHeader
-                    col="rating"
-                    label="Rating"
-                    active={sortKey}
-                    dir={sortDir}
-                    onClick={handleSort}
-                  />
-                </TableHead>
-                <TableHead>
-                  <SortHeader
-                    col="rr"
-                    label="RR"
-                    active={sortKey}
-                    dir={sortDir}
-                    onClick={handleSort}
-                  />
-                </TableHead>
-                <TableHead>
-                  <SortHeader
-                    col="outcome"
-                    label="Outcome"
-                    active={sortKey}
-                    dir={sortDir}
-                    onClick={handleSort}
-                  />
-                </TableHead>
-                <TableHead className="text-xs font-medium text-muted-foreground max-w-48">
-                  Reason
-                </TableHead>
-                <TableHead className="text-xs font-medium text-muted-foreground max-w-40">
-                  Emotions
-                </TableHead>
-                <TableHead className="pr-6 text-right text-xs font-medium text-muted-foreground">
-                  Actions
-                </TableHead>
-              </TableRow>
-            </TableHeader>
-            <TableBody>
-              {filtered.length === 0 ? (
-                <TableRow>
-                  <TableCell
-                    colSpan={9}
-                    className="text-muted-foreground text-center py-16"
-                  >
-                    <div className="flex flex-col items-center gap-2">
-                      <Search className="h-8 w-8 text-muted-foreground/40" />
-                      <p className="text-sm">
-                        {search
-                          ? `No trades match "${search}"`
-                          : "No trades yet."}
-                      </p>
-                    </div>
-                  </TableCell>
+        <CardContent className="p-0 pb-1">
+          {/* ── Desktop table ── */}
+          <div className="hidden md:block overflow-x-auto">
+            <Table>
+              <TableHeader>
+                <TableRow className="border-border/50 hover:bg-transparent">
+                  <TableHead className="pl-6">
+                    <SortHeader
+                      col="tradeDate"
+                      label="Date"
+                      active={sortKey}
+                      dir={sortDir}
+                      onClick={handleSort}
+                    />
+                  </TableHead>
+                  <TableHead>
+                    <SortHeader
+                      col="entryTimeframe"
+                      label="TF"
+                      active={sortKey}
+                      dir={sortDir}
+                      onClick={handleSort}
+                    />
+                  </TableHead>
+                  <TableHead className="text-xs font-medium text-muted-foreground">
+                    PO3
+                  </TableHead>
+                  <TableHead>
+                    <SortHeader
+                      col="rating"
+                      label="Rating"
+                      active={sortKey}
+                      dir={sortDir}
+                      onClick={handleSort}
+                    />
+                  </TableHead>
+                  <TableHead>
+                    <SortHeader
+                      col="rr"
+                      label="RR"
+                      active={sortKey}
+                      dir={sortDir}
+                      onClick={handleSort}
+                    />
+                  </TableHead>
+                  <TableHead>
+                    <SortHeader
+                      col="outcome"
+                      label="Outcome"
+                      active={sortKey}
+                      dir={sortDir}
+                      onClick={handleSort}
+                    />
+                  </TableHead>
+                  <TableHead className="text-xs font-medium text-muted-foreground max-w-48">
+                    Reason
+                  </TableHead>
+                  <TableHead className="text-xs font-medium text-muted-foreground max-w-40">
+                    Emotions
+                  </TableHead>
+                  <TableHead className="pr-6 text-right text-xs font-medium text-muted-foreground">
+                    Actions
+                  </TableHead>
                 </TableRow>
-              ) : (
-                filtered.map((trade) => (
-                  <TableRow
-                    key={trade.id}
-                    className="border-border/40 hover:bg-primary/5 transition-colors group"
-                  >
-                    <TableCell className="pl-6 font-mono text-xs">
-                      {trade.tradeDate}
-                    </TableCell>
-                    <TableCell>
-                      <Badge
-                        variant="secondary"
-                        className="font-mono text-[11px]"
-                      >
-                        {trade.entryTimeframe}
-                      </Badge>
-                    </TableCell>
-                    <TableCell className="text-xs font-mono">
-                      {trade.po3Time}
-                    </TableCell>
-                    <TableCell className="text-xs">
-                      <span className="font-bold text-primary">
-                        {trade.rating}
-                      </span>
-                    </TableCell>
-                    <TableCell className="text-xs font-mono font-semibold">
-                      {numberFormatter.format(trade.rr)}R
-                    </TableCell>
-                    <TableCell>
-                      {trade.outcome === "win" ? (
-                        <Badge className="bg-emerald-500/15 text-emerald-400 border-emerald-500/25 text-[11px] font-semibold">
-                          <TrendingUp className="h-3 w-3 mr-1" />
-                          WIN
-                        </Badge>
-                      ) : trade.outcome === "loss" ? (
-                        <Badge className="bg-red-500/15 text-red-400 border-red-500/25 text-[11px] font-semibold">
-                          <TrendingDown className="h-3 w-3 mr-1" />
-                          LOSS
-                        </Badge>
-                      ) : (
-                        <Badge className="bg-yellow-500/15 text-yellow-400 border-yellow-500/25 text-[11px] font-semibold">
-                          BE
-                        </Badge>
-                      )}
-                    </TableCell>
-                    <TableCell className="text-xs text-muted-foreground max-w-48 truncate">
-                      {trade.reason}
-                    </TableCell>
-                    <TableCell className="text-xs text-muted-foreground max-w-40 truncate">
-                      {trade.emotions}
-                    </TableCell>
-                    <TableCell className="pr-6 text-right">
-                      <div className="flex items-center justify-end gap-1 opacity-0 group-hover:opacity-100 transition-opacity">
-                        <Button
-                          variant="ghost"
-                          size="icon"
-                          className="h-7 w-7 text-muted-foreground hover:text-primary hover:bg-primary/10"
-                          onClick={() => setEditTrade(trade)}
-                        >
-                          <Pencil className="h-3.5 w-3.5" />
-                        </Button>
-                        <Button
-                          variant="ghost"
-                          size="icon"
-                          className="h-7 w-7 text-muted-foreground hover:text-red-400 hover:bg-red-400/10"
-                          onClick={() => setDeleteId(trade.id)}
-                        >
-                          <Trash2 className="h-3.5 w-3.5" />
-                        </Button>
+              </TableHeader>
+              <TableBody>
+                {filtered.length === 0 ? (
+                  <TableRow>
+                    <TableCell
+                      colSpan={9}
+                      className="text-muted-foreground text-center py-16"
+                    >
+                      <div className="flex flex-col items-center gap-2">
+                        <Search className="h-8 w-8 text-muted-foreground/40" />
+                        <p className="text-sm">
+                          {search
+                            ? `No trades match "${search}"`
+                            : "No trades yet."}
+                        </p>
                       </div>
                     </TableCell>
                   </TableRow>
-                ))
-              )}
-            </TableBody>
-          </Table>
+                ) : (
+                  filtered.map((trade) => (
+                    <TableRow
+                      key={trade.id}
+                      onClick={() => setViewTrade(trade)}
+                      className="border-border/40 hover:bg-primary/5 transition-colors group cursor-pointer"
+                    >
+                      <TableCell className="pl-6 font-mono text-xs">
+                        {trade.tradeDate}
+                      </TableCell>
+                      <TableCell>
+                        <Badge
+                          variant="secondary"
+                          className="font-mono text-[11px]"
+                        >
+                          {trade.entryTimeframe}
+                        </Badge>
+                      </TableCell>
+                      <TableCell className="text-xs font-mono">
+                        {trade.po3Time}
+                      </TableCell>
+                      <TableCell className="text-xs">
+                        <span className="font-bold text-primary">
+                          {trade.rating}
+                        </span>
+                      </TableCell>
+                      <TableCell className="text-xs font-mono font-semibold">
+                        {numberFormatter.format(trade.rr)}R
+                      </TableCell>
+                      <TableCell>
+                        {trade.outcome === "win" ? (
+                          <Badge className="bg-emerald-500/15 text-emerald-400 border-emerald-500/25 text-[11px] font-semibold">
+                            <TrendingUp className="h-3 w-3 mr-1" />
+                            WIN
+                          </Badge>
+                        ) : trade.outcome === "loss" ? (
+                          <Badge className="bg-red-500/15 text-red-400 border-red-500/25 text-[11px] font-semibold">
+                            <TrendingDown className="h-3 w-3 mr-1" />
+                            LOSS
+                          </Badge>
+                        ) : (
+                          <Badge className="bg-yellow-500/15 text-yellow-400 border-yellow-500/25 text-[11px] font-semibold">
+                            BE
+                          </Badge>
+                        )}
+                      </TableCell>
+                      <TableCell className="text-xs text-muted-foreground max-w-48 truncate">
+                        {trade.reason}
+                      </TableCell>
+                      <TableCell className="text-xs text-muted-foreground max-w-40 truncate">
+                        {trade.emotions}
+                      </TableCell>
+                      <TableCell className="pr-6 text-right">
+                        <div className="flex items-center justify-end gap-1 opacity-0 group-hover:opacity-100 transition-opacity">
+                          <Button
+                            variant="ghost"
+                            size="icon"
+                            className="h-7 w-7 text-muted-foreground hover:text-primary hover:bg-primary/10"
+                            onClick={(e) => {
+                              e.stopPropagation();
+                              setEditTrade(trade);
+                            }}
+                          >
+                            <Pencil className="h-3.5 w-3.5" />
+                          </Button>
+                          <Button
+                            variant="ghost"
+                            size="icon"
+                            className="h-7 w-7 text-muted-foreground hover:text-red-400 hover:bg-red-400/10"
+                            onClick={(e) => {
+                              e.stopPropagation();
+                              setDeleteId(trade.id);
+                            }}
+                          >
+                            <Trash2 className="h-3.5 w-3.5" />
+                          </Button>
+                        </div>
+                      </TableCell>
+                    </TableRow>
+                  ))
+                )}
+              </TableBody>
+            </Table>
+          </div>
+
+          {/* ── Mobile card list ── */}
+          <div className="md:hidden divide-y divide-border/40">
+            {filtered.length === 0 ? (
+              <div className="py-12 text-center">
+                <p className="text-sm text-muted-foreground">
+                  {search ? `No results for "${search}"` : "No trades yet."}
+                </p>
+              </div>
+            ) : (
+              filtered.map((trade) => (
+                <button
+                  key={trade.id}
+                  type="button"
+                  onClick={() => setViewTrade(trade)}
+                  className="w-full flex items-center gap-3 px-4 py-3 hover:bg-primary/5 transition-colors text-left"
+                >
+                  {/* Outcome dot */}
+                  <span
+                    className={`h-2 w-2 rounded-full shrink-0 mt-0.5 ${
+                      trade.outcome === "win"
+                        ? "bg-emerald-500"
+                        : trade.outcome === "loss"
+                          ? "bg-red-500"
+                          : "bg-yellow-500"
+                    }`}
+                  />
+                  <div className="flex-1 min-w-0">
+                    <div className="flex items-center gap-2">
+                      <span className="font-mono text-xs text-muted-foreground">
+                        {trade.tradeDate}
+                      </span>
+                      <Badge
+                        variant="secondary"
+                        className="font-mono text-[10px] py-0"
+                      >
+                        {trade.entryTimeframe}
+                      </Badge>
+                      <span className="text-xs font-bold text-primary">
+                        {trade.rating}
+                      </span>
+                    </div>
+                    <p className="text-xs text-muted-foreground truncate mt-0.5">
+                      {trade.reason}
+                    </p>
+                  </div>
+                  <div className="text-right shrink-0">
+                    <p
+                      className={`text-sm font-bold font-mono ${
+                        trade.outcome === "win"
+                          ? "text-emerald-500"
+                          : trade.outcome === "loss"
+                            ? "text-red-500"
+                            : "text-yellow-500"
+                      }`}
+                    >
+                      {trade.outcome === "win"
+                        ? "+"
+                        : trade.outcome === "loss"
+                          ? "-"
+                          : ""}
+                      {numberFormatter.format(trade.rr)}R
+                    </p>
+                    <p className="text-[10px] text-muted-foreground uppercase">
+                      {trade.outcome === "breakeven" ? "BE" : trade.outcome}
+                    </p>
+                  </div>
+                </button>
+              ))
+            )}
+          </div>
         </CardContent>
       </Card>
 
@@ -698,6 +794,16 @@ export default function TradesPage() {
           </AlertDialogFooter>
         </AlertDialogContent>
       </AlertDialog>
+
+      <TradeDetailSheet
+        trade={viewTrade}
+        open={!!viewTrade}
+        onClose={() => setViewTrade(null)}
+        onEdit={(t) => {
+          setViewTrade(null);
+          setEditTrade(t);
+        }}
+      />
     </div>
   );
 }
