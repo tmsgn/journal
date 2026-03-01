@@ -97,7 +97,7 @@ interface TradeDetailSheetProps {
   trade: Trade | null;
   open: boolean;
   onClose: () => void;
-  onEdit: (trade: Trade) => void;
+  onEdit?: (trade: Trade) => void;
 }
 
 export function TradeDetailSheet({
@@ -141,17 +141,19 @@ export function TradeDetailSheet({
               </div>
             </div>
             <div className="flex items-center gap-1.5">
-              <Button
-                size="icon"
-                variant="ghost"
-                className="h-8 w-8 text-muted-foreground hover:text-primary"
-                onClick={() => {
-                  onEdit(trade);
-                  onClose();
-                }}
-              >
-                <Pencil className="h-3.5 w-3.5" />
-              </Button>
+              {onEdit && (
+                <Button
+                  size="icon"
+                  variant="ghost"
+                  className="h-8 w-8 text-muted-foreground hover:text-primary"
+                  onClick={() => {
+                    onEdit(trade);
+                    onClose();
+                  }}
+                >
+                  <Pencil className="h-3.5 w-3.5" />
+                </Button>
+              )}
               <Button
                 size="icon"
                 variant="ghost"

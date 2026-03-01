@@ -12,6 +12,8 @@ import {
   ChevronRight,
   X,
   Menu,
+  CalendarDays,
+  CalendarRange,
 } from "lucide-react";
 import { UserMenu } from "@/components/user-menu";
 import { ThemeToggle } from "@/components/theme-toggle";
@@ -22,6 +24,8 @@ const navItems = [
   { label: "Dashboard", href: "/", icon: LayoutDashboard },
   { label: "Log Trade", href: "/new-trade", icon: PlusCircle },
   { label: "All Trades", href: "/trades", icon: ClipboardList },
+  { label: "Calendar", href: "/calendar", icon: CalendarDays },
+  { label: "Weekly", href: "/weekly", icon: CalendarRange },
 ];
 
 function NavLinks({

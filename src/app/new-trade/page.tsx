@@ -304,10 +304,9 @@ export default function NewTradePage() {
                 )}
               />
 
-              {/* Screenshots */}
               <div className="md:col-span-2 pt-2">
                 <p className="text-xs font-semibold uppercase tracking-widest text-muted-foreground mb-3">
-                  Screenshots
+                  Screenshots <span className="text-destructive">*</span>
                 </p>
               </div>
               <FormField

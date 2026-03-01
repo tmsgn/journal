@@ -21,6 +21,7 @@ export const entryTimeframeOptions = [
   "1min",
   "2min",
   "3min",
+  "4min",
   "5min",
 ] as const;
 export const ratingOptions = ["A+", "A", "A-", "B+", "B", "B-"] as const;
@@ -44,9 +45,12 @@ export const tradeSchema = z.object({
   outcome: z.enum(outcomeOptions),
   reason: z.string().trim().min(1, "Reason is required"),
   emotions: z.string().trim().min(1, "Emotions note is required"),
-  screenshotLow: z.string().trim().optional(),
-  screenshotMiddle: z.string().trim().optional(),
-  screenshotHigh: z.string().trim().optional(),
+  screenshotLow: z.string().trim().min(1, "Low TF screenshot is required"),
+  screenshotMiddle: z
+    .string()
+    .trim()
+    .min(1, "Middle TF screenshot is required"),
+  screenshotHigh: z.string().trim().min(1, "High TF screenshot is required"),
 });
 
 export type TradeFormValues = z.infer<typeof tradeSchema>;
@@ -71,9 +75,9 @@ function rowToTrade(row: Record<string, unknown>): Trade {
     outcome: row.outcome as Trade["outcome"],
     reason: (row.reason as string) ?? "",
     emotions: (row.emotions as string) ?? "",
-    screenshotLow: (row.screenshot_low as string) ?? undefined,
-    screenshotMiddle: (row.screenshot_middle as string) ?? undefined,
-    screenshotHigh: (row.screenshot_high as string) ?? undefined,
+    screenshotLow: (row.screenshot_low as string) ?? "",
+    screenshotMiddle: (row.screenshot_middle as string) ?? "",
+    screenshotHigh: (row.screenshot_high as string) ?? "",
   };
 }
 
@@ -88,9 +92,9 @@ function tradeToRow(values: TradeFormValues, userId: string) {
     outcome: values.outcome,
     reason: values.reason,
     emotions: values.emotions,
-    screenshot_low: values.screenshotLow ?? null,
-    screenshot_middle: values.screenshotMiddle ?? null,
-    screenshot_high: values.screenshotHigh ?? null,
+    screenshot_low: values.screenshotLow,
+    screenshot_middle: values.screenshotMiddle,
+    screenshot_high: values.screenshotHigh,
   };
 }
 
