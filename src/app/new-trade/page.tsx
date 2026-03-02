@@ -32,24 +32,25 @@ import {
 import { Textarea } from "@/components/ui/textarea";
 import { ScreenshotUploader } from "@/components/screenshot-uploader";
 import {
-  entryTimeframeOptions,
   getTodayDateString,
   outcomeOptions,
-  po3TimeOptions,
-  ratingOptions,
   type TradeFormValues,
   tradeSchema,
   useJournal,
 } from "@/hooks/use-journal";
+import { useSettings } from "@/hooks/use-settings";
+import { Badge } from "@/components/ui/badge";
 import { useState } from "react";
 
 type TradeFormInput = z.input<typeof tradeSchema>;
 
 const defaultValues: TradeFormInput = {
   tradeDate: getTodayDateString(),
-  entryTimeframe: "1min",
+  entryTimeframe: "",
   po3Time: undefined,
-  rating: "A",
+  rating: "",
+  dol: "",
+  model: [],
   rr: 1,
   outcome: "win",
   reason: "",
@@ -60,7 +61,9 @@ const defaultValues: TradeFormInput = {
 };
 
 export default function NewTradePage() {
-  const { addTrade, hydrated, userId } = useJournal();
+  const { addTrade, hydrated: journalHydrated, userId } = useJournal();
+  const { settings, hydrated: settingsHydrated } = useSettings();
+  const hydrated = journalHydrated && settingsHydrated;
   const [isSubmitting, setIsSubmitting] = useState(false);
 
   const form = useForm<TradeFormInput, unknown, TradeFormValues>({
@@ -139,7 +142,7 @@ export default function NewTradePage() {
                         </SelectTrigger>
                       </FormControl>
                       <SelectContent>
-                        {entryTimeframeOptions.map((o) => (
+                        {settings.timeframes.map((o) => (
                           <SelectItem key={o} value={o}>
                             {o}
                           </SelectItem>
@@ -174,7 +177,7 @@ export default function NewTradePage() {
                       </FormControl>
                       <SelectContent>
                         <SelectItem value="none">Not applicable</SelectItem>
-                        {po3TimeOptions.map((o) => (
+                        {settings.po3Times.map((o) => (
                           <SelectItem key={o} value={o}>
                             {o}
                           </SelectItem>
@@ -198,7 +201,7 @@ export default function NewTradePage() {
                         </SelectTrigger>
                       </FormControl>
                       <SelectContent>
-                        {ratingOptions.map((o) => (
+                        {settings.ratings.map((o) => (
                           <SelectItem key={o} value={o}>
                             {o}
                           </SelectItem>
@@ -254,6 +257,67 @@ export default function NewTradePage() {
                         ))}
                       </SelectContent>
                     </Select>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
+
+              <FormField
+                control={form.control}
+                name="dol"
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel className="text-xs">
+                      Draw on Liquidity (DOL)
+                    </FormLabel>
+                    <Select value={field.value} onValueChange={field.onChange}>
+                      <FormControl>
+                        <SelectTrigger className="w-full">
+                          <SelectValue placeholder="Select DOL" />
+                        </SelectTrigger>
+                      </FormControl>
+                      <SelectContent>
+                        {settings.dols.map((o) => (
+                          <SelectItem key={o} value={o}>
+                            {o}
+                          </SelectItem>
+                        ))}
+                      </SelectContent>
+                    </Select>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
+
+              <FormField
+                control={form.control}
+                name="model"
+                render={({ field }) => (
+                  <FormItem className="md:col-span-2">
+                    <FormLabel className="text-xs">Model(s)</FormLabel>
+                    <FormControl>
+                      <div className="flex flex-wrap gap-2">
+                        {settings.models.map((m) => {
+                          const isSelected = field.value.includes(m);
+                          return (
+                            <Badge
+                              key={m}
+                              variant={isSelected ? "default" : "outline"}
+                              className="cursor-pointer"
+                              onClick={() => {
+                                const current = field.value;
+                                const next = isSelected
+                                  ? current.filter((v: string) => v !== m)
+                                  : [...current, m];
+                                field.onChange(next);
+                              }}
+                            >
+                              {m}
+                            </Badge>
+                          );
+                        })}
+                      </div>
+                    </FormControl>
                     <FormMessage />
                   </FormItem>
                 )}

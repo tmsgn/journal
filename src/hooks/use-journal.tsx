@@ -14,35 +14,19 @@ import { z } from "zod";
 import { createClient } from "@/lib/supabase";
 import type { SupabaseClient } from "@supabase/supabase-js";
 
-// ─── Constants ───────────────────────────────────────────────────────────────
-
-export const entryTimeframeOptions = [
-  "30sec",
-  "1min",
-  "2min",
-  "3min",
-  "4min",
-  "5min",
-] as const;
-export const ratingOptions = ["A+", "A", "A-", "B+", "B", "B-"] as const;
-export const po3TimeOptions = [
-  "9:30",
-  "9:45",
-  "10:00",
-  "10:15",
-  "10:30",
-] as const;
 export const outcomeOptions = ["win", "loss", "breakeven"] as const;
 
 // ─── Schema ──────────────────────────────────────────────────────────────────
 
 export const tradeSchema = z.object({
   tradeDate: z.string().min(1),
-  entryTimeframe: z.enum(entryTimeframeOptions),
-  po3Time: z.enum(po3TimeOptions).optional(),
-  rating: z.enum(ratingOptions),
+  entryTimeframe: z.string().min(1, "Timeframe is required"),
+  po3Time: z.string().optional(),
+  rating: z.string().min(1, "Rating is required"),
   rr: z.coerce.number().min(0),
   outcome: z.enum(outcomeOptions),
+  dol: z.string().min(1, "DOL is required"),
+  model: z.array(z.string()).min(1, "At least one model is required"),
   reason: z.string().trim().min(1, "Reason is required"),
   emotions: z.string().trim().min(1, "Emotions note is required"),
   screenshotLow: z.string().trim().min(1, "Low TF screenshot is required"),
@@ -68,11 +52,13 @@ function rowToTrade(row: Record<string, unknown>): Trade {
     id: row.id as string,
     createdAt: row.created_at as string,
     tradeDate: row.trade_date as string,
-    entryTimeframe: row.entry_timeframe as Trade["entryTimeframe"],
-    po3Time: (row.po3_time as Trade["po3Time"]) ?? undefined,
-    rating: row.rating as Trade["rating"],
+    entryTimeframe: row.entry_timeframe as string,
+    po3Time: (row.po3_time as string) ?? undefined,
+    rating: row.rating as string,
     rr: Number(row.rr),
     outcome: row.outcome as Trade["outcome"],
+    dol: (row.dol as string) ?? "",
+    model: (row.model as string[]) ?? [],
     reason: (row.reason as string) ?? "",
     emotions: (row.emotions as string) ?? "",
     screenshotLow: (row.screenshot_low as string) ?? "",
@@ -90,6 +76,8 @@ function tradeToRow(values: TradeFormValues, userId: string) {
     rating: values.rating,
     rr: values.rr,
     outcome: values.outcome,
+    dol: values.dol,
+    model: values.model,
     reason: values.reason,
     emotions: values.emotions,
     screenshot_low: values.screenshotLow,
@@ -114,6 +102,20 @@ interface JournalStats {
   streakType: "win" | "loss" | "breakeven" | null;
   equityCurve: { date: string; rr: number }[];
   winRateByTimeframe: { timeframe: string; count: number; winRate: number }[];
+  modelAnalytics: {
+    model: string;
+    wins: number;
+    total: number;
+    winRate: number;
+    totalRR: number;
+  }[];
+  dolAnalytics: {
+    dol: string;
+    wins: number;
+    total: number;
+    winRate: number;
+    totalRR: number;
+  }[];
 }
 
 interface JournalContextValue {
@@ -274,7 +276,8 @@ export function JournalProvider({ children }: { children: ReactNode }) {
       return { date: t.tradeDate, rr: parseFloat(cumulative.toFixed(2)) };
     });
 
-    const winRateByTimeframe = entryTimeframeOptions.map((timeframe) => {
+    const timeframes = Array.from(new Set(trades.map((t) => t.entryTimeframe)));
+    const winRateByTimeframe = timeframes.map((timeframe) => {
       const scoped = trades.filter((t) => t.entryTimeframe === timeframe);
       const scopedWins = scoped.filter((t) => t.outcome === "win").length;
       return {
@@ -283,6 +286,62 @@ export function JournalProvider({ children }: { children: ReactNode }) {
         winRate: scoped.length > 0 ? (scopedWins / scoped.length) * 100 : 0,
       };
     });
+
+    // ── Model Analytics ──
+    const modelMap = new Map<
+      string,
+      { wins: number; total: number; totalRR: number }
+    >();
+    for (const t of trades) {
+      if (!t.model) continue;
+      const tradeRR =
+        t.outcome === "win"
+          ? Number(t.rr || 0)
+          : t.outcome === "loss"
+            ? -Math.max(Number(t.rr || 0), 1)
+            : 0;
+      for (const m of t.model) {
+        const curr = modelMap.get(m) || { wins: 0, total: 0, totalRR: 0 };
+        curr.total++;
+        if (t.outcome === "win") curr.wins++;
+        curr.totalRR += tradeRR;
+        modelMap.set(m, curr);
+      }
+    }
+    const modelAnalytics = Array.from(modelMap.entries())
+      .map(([model, data]) => ({
+        model,
+        ...data,
+        winRate: data.total > 0 ? (data.wins / data.total) * 100 : 0,
+      }))
+      .sort((a, b) => b.total - a.total); // Sort by most frequent
+
+    // ── DOL Analytics ──
+    const dolMap = new Map<
+      string,
+      { wins: number; total: number; totalRR: number }
+    >();
+    for (const t of trades) {
+      if (!t.dol) continue;
+      const tradeRR =
+        t.outcome === "win"
+          ? Number(t.rr || 0)
+          : t.outcome === "loss"
+            ? -Math.max(Number(t.rr || 0), 1)
+            : 0;
+      const curr = dolMap.get(t.dol) || { wins: 0, total: 0, totalRR: 0 };
+      curr.total++;
+      if (t.outcome === "win") curr.wins++;
+      curr.totalRR += tradeRR;
+      dolMap.set(t.dol, curr);
+    }
+    const dolAnalytics = Array.from(dolMap.entries())
+      .map(([dol, data]) => ({
+        dol,
+        ...data,
+        winRate: data.total > 0 ? (data.wins / data.total) * 100 : 0,
+      }))
+      .sort((a, b) => b.total - a.total);
 
     return {
       total,
@@ -296,6 +355,8 @@ export function JournalProvider({ children }: { children: ReactNode }) {
       streakType,
       equityCurve,
       winRateByTimeframe,
+      modelAnalytics,
+      dolAnalytics,
     };
   }, [trades]);
 
@@ -332,6 +393,8 @@ export function tradesToCsv(trades: Trade[]): string {
     "Timeframe",
     "PO3",
     "Rating",
+    "DOL",
+    "Model",
     "RR",
     "Outcome",
     "Reason",
@@ -345,6 +408,8 @@ export function tradesToCsv(trades: Trade[]): string {
     t.entryTimeframe,
     t.po3Time ?? "",
     t.rating,
+    t.dol ?? "",
+    (t.model ?? []).join(" | "),
     t.rr,
     t.outcome,
     `"${(t.reason ?? "").replace(/"/g, '""')}"`,

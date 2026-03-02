@@ -72,16 +72,14 @@ import { ScreenshotUploader } from "@/components/screenshot-uploader";
 import { TradeDetailSheet } from "@/components/trade-detail-sheet";
 import { toast } from "sonner";
 import {
-  entryTimeframeOptions,
   outcomeOptions,
-  po3TimeOptions,
-  ratingOptions,
   type Trade,
   type TradeFormValues,
   tradeSchema,
   useJournal,
   tradesToCsv,
 } from "@/hooks/use-journal";
+import { useSettings } from "@/hooks/use-settings";
 
 const numberFormatter = new Intl.NumberFormat("en-US", {
   maximumFractionDigits: 2,
@@ -144,6 +142,7 @@ function EditTradeDialog({
   onClose: () => void;
 }) {
   const { updateTrade, userId } = useJournal();
+  const { settings } = useSettings();
 
   const form = useForm<TradeFormInput, unknown, TradeFormValues>({
     resolver: zodResolver(tradeSchema),
@@ -154,6 +153,8 @@ function EditTradeDialog({
       rating: trade.rating,
       rr: trade.rr,
       outcome: trade.outcome,
+      dol: trade.dol || "",
+      model: trade.model || [],
       reason: trade.reason,
       emotions: trade.emotions,
       screenshotLow: trade.screenshotLow ?? "",
@@ -212,7 +213,7 @@ function EditTradeDialog({
                       </SelectTrigger>
                     </FormControl>
                     <SelectContent>
-                      {entryTimeframeOptions.map((o) => (
+                      {settings.timeframes.map((o) => (
                         <SelectItem key={o} value={o}>
                           {o}
                         </SelectItem>
@@ -247,7 +248,7 @@ function EditTradeDialog({
                     </FormControl>
                     <SelectContent>
                       <SelectItem value="none">Not applicable</SelectItem>
-                      {po3TimeOptions.map((o) => (
+                      {settings.po3Times.map((o) => (
                         <SelectItem key={o} value={o}>
                           {o}
                         </SelectItem>
@@ -271,7 +272,7 @@ function EditTradeDialog({
                       </SelectTrigger>
                     </FormControl>
                     <SelectContent>
-                      {ratingOptions.map((o) => (
+                      {settings.ratings.map((o) => (
                         <SelectItem key={o} value={o}>
                           {o}
                         </SelectItem>
@@ -326,6 +327,63 @@ function EditTradeDialog({
                       ))}
                     </SelectContent>
                   </Select>
+                  <FormMessage />
+                </FormItem>
+              )}
+            />
+            <FormField
+              control={form.control}
+              name="dol"
+              render={({ field }) => (
+                <FormItem>
+                  <FormLabel>Draw on Liquidity</FormLabel>
+                  <Select value={field.value} onValueChange={field.onChange}>
+                    <FormControl>
+                      <SelectTrigger className="w-full">
+                        <SelectValue />
+                      </SelectTrigger>
+                    </FormControl>
+                    <SelectContent>
+                      {settings.dols.map((o) => (
+                        <SelectItem key={o} value={o}>
+                          {o}
+                        </SelectItem>
+                      ))}
+                    </SelectContent>
+                  </Select>
+                  <FormMessage />
+                </FormItem>
+              )}
+            />
+            <FormField
+              control={form.control}
+              name="model"
+              render={({ field }) => (
+                <FormItem className="md:col-span-2">
+                  <FormLabel>Model(s)</FormLabel>
+                  <FormControl>
+                    <div className="flex flex-wrap gap-2">
+                      {settings.models.map((m) => {
+                        const isSelected = field.value.includes(m);
+                        return (
+                          <Badge
+                            key={m}
+                            variant={isSelected ? "default" : "outline"}
+                            className="cursor-pointer"
+                            onClick={() => {
+                              const current = field.value;
+                              const next = isSelected
+                                ? current.filter((v: string) => v !== m)
+                                : [...current, m];
+                              field.onChange(next);
+                            }}
+                          >
+                            {m}
+                          </Badge>
+                        );
+                      })}
+                    </div>
+                  </FormControl>
                   <FormMessage />
                 </FormItem>
               )}
@@ -545,6 +603,12 @@ export default function TradesPage() {
                   <TableHead className="text-xs font-medium text-muted-foreground">
                     PO3
                   </TableHead>
+                  <TableHead className="text-xs font-medium text-muted-foreground">
+                    DOL
+                  </TableHead>
+                  <TableHead className="text-xs font-medium text-muted-foreground">
+                    Model
+                  </TableHead>
                   <TableHead>
                     <SortHeader
                       col="rating"
@@ -587,7 +651,7 @@ export default function TradesPage() {
                 {filtered.length === 0 ? (
                   <TableRow>
                     <TableCell
-                      colSpan={9}
+                      colSpan={11}
                       className="text-muted-foreground text-center py-16"
                     >
                       <div className="flex flex-col items-center gap-2">
@@ -620,6 +684,22 @@ export default function TradesPage() {
                       </TableCell>
                       <TableCell className="text-xs font-mono">
                         {trade.po3Time}
+                      </TableCell>
+                      <TableCell className="text-[11px] font-mono text-muted-foreground">
+                        {trade.dol}
+                      </TableCell>
+                      <TableCell>
+                        <div className="flex flex-wrap gap-1 max-w-32">
+                          {trade.model?.map((m) => (
+                            <Badge
+                              key={m}
+                              variant="secondary"
+                              className="font-mono text-[9px] py-0 px-1"
+                            >
+                              {m}
+                            </Badge>
+                          ))}
+                        </div>
                       </TableCell>
                       <TableCell className="text-xs">
                         <span className="font-bold text-primary">

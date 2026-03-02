@@ -17,7 +17,15 @@ export function useLocalStorage<T>(key: string, initialValue: T) {
     try {
       const raw = window.localStorage.getItem(key);
       if (raw !== null) {
-        setValue(JSON.parse(raw) as T);
+        const parsed = JSON.parse(raw);
+        setValue(
+          typeof parsed === "object" &&
+            parsed !== null &&
+            typeof initialValue === "object" &&
+            initialValue !== null
+            ? { ...initialValue, ...parsed }
+            : (parsed as T),
+        );
       }
     } catch {
       setValue(initialValue);

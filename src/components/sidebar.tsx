@@ -14,6 +14,7 @@ import {
   Menu,
   CalendarDays,
   CalendarRange,
+  Settings,
 } from "lucide-react";
 import { UserMenu } from "@/components/user-menu";
 import { ThemeToggle } from "@/components/theme-toggle";
@@ -26,6 +27,7 @@ const navItems = [
   { label: "All Trades", href: "/trades", icon: ClipboardList },
   { label: "Calendar", href: "/calendar", icon: CalendarDays },
   { label: "Weekly", href: "/weekly", icon: CalendarRange },
+  { label: "Settings", href: "/settings", icon: Settings },
 ];
 
 function NavLinks({
