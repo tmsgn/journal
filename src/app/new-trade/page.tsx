@@ -49,7 +49,7 @@ const defaultValues: TradeFormInput = {
   entryTimeframe: "",
   po3Time: undefined,
   rating: "",
-  dol: "",
+  dol: [],
   model: [],
   rr: 1,
   outcome: "win",
@@ -266,24 +266,33 @@ export default function NewTradePage() {
                 control={form.control}
                 name="dol"
                 render={({ field }) => (
-                  <FormItem>
+                  <FormItem className="md:col-span-2">
                     <FormLabel className="text-xs">
                       Draw on Liquidity (DOL)
                     </FormLabel>
-                    <Select value={field.value} onValueChange={field.onChange}>
-                      <FormControl>
-                        <SelectTrigger className="w-full">
-                          <SelectValue placeholder="Select DOL" />
-                        </SelectTrigger>
-                      </FormControl>
-                      <SelectContent>
-                        {settings.dols.map((o) => (
-                          <SelectItem key={o} value={o}>
-                            {o}
-                          </SelectItem>
-                        ))}
-                      </SelectContent>
-                    </Select>
+                    <FormControl>
+                      <div className="flex flex-wrap gap-2">
+                        {settings.dols.map((d) => {
+                          const isSelected = field.value.includes(d);
+                          return (
+                            <Badge
+                              key={d}
+                              variant={isSelected ? "default" : "outline"}
+                              className="cursor-pointer"
+                              onClick={() => {
+                                const current = field.value;
+                                const next = isSelected
+                                  ? current.filter((v: string) => v !== d)
+                                  : [...current, d];
+                                field.onChange(next);
+                              }}
+                            >
+                              {d}
+                            </Badge>
+                          );
+                        })}
+                      </div>
+                    </FormControl>
                     <FormMessage />
                   </FormItem>
                 )}

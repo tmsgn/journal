@@ -23,6 +23,8 @@ import {
   Brain,
   MessageSquare,
   Minus,
+  Target,
+  Activity,
 } from "lucide-react";
 import { cn } from "@/lib/utils";
 
@@ -216,6 +218,20 @@ export function TradeDetailSheet({
               />
             )}
             <MetaItem icon={Star} label="Setup Rating" value={trade.rating} />
+            {trade.dol && trade.dol.length > 0 && (
+              <MetaItem
+                icon={Target}
+                label="DOL"
+                value={trade.dol.join(", ")}
+              />
+            )}
+            {trade.model && trade.model.length > 0 && (
+              <MetaItem
+                icon={Activity}
+                label="Models"
+                value={trade.model.join(", ")}
+              />
+            )}
           </div>
 
           <Separator className="opacity-50" />

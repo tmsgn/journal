@@ -15,6 +15,7 @@ import {
   ArrowUpDown,
   ArrowUp,
   ArrowDown,
+  Loader2,
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import {
@@ -153,7 +154,7 @@ function EditTradeDialog({
       rating: trade.rating,
       rr: trade.rr,
       outcome: trade.outcome,
-      dol: trade.dol || "",
+      dol: trade.dol || [],
       model: trade.model || [],
       reason: trade.reason,
       emotions: trade.emotions,
@@ -163,8 +164,13 @@ function EditTradeDialog({
     },
   });
 
+  const [isSaving, setIsSaving] = useState(false);
+
   const onSubmit = async (values: TradeFormValues) => {
+    setIsSaving(true);
     const { error } = await updateTrade(trade.id, values);
+    setIsSaving(false);
+
     if (error) {
       toast.error(`Failed to update: ${error}`);
     } else {
@@ -335,22 +341,31 @@ function EditTradeDialog({
               control={form.control}
               name="dol"
               render={({ field }) => (
-                <FormItem>
+                <FormItem className="md:col-span-2">
                   <FormLabel>Draw on Liquidity</FormLabel>
-                  <Select value={field.value} onValueChange={field.onChange}>
-                    <FormControl>
-                      <SelectTrigger className="w-full">
-                        <SelectValue />
-                      </SelectTrigger>
-                    </FormControl>
-                    <SelectContent>
-                      {settings.dols.map((o) => (
-                        <SelectItem key={o} value={o}>
-                          {o}
-                        </SelectItem>
-                      ))}
-                    </SelectContent>
-                  </Select>
+                  <FormControl>
+                    <div className="flex flex-wrap gap-2">
+                      {settings.dols.map((d) => {
+                        const isSelected = field.value.includes(d);
+                        return (
+                          <Badge
+                            key={d}
+                            variant={isSelected ? "default" : "outline"}
+                            className="cursor-pointer"
+                            onClick={() => {
+                              const current = field.value;
+                              const next = isSelected
+                                ? current.filter((v: string) => v !== d)
+                                : [...current, d];
+                              field.onChange(next);
+                            }}
+                          >
+                            {d}
+                          </Badge>
+                        );
+                      })}
+                    </div>
+                  </FormControl>
                   <FormMessage />
                 </FormItem>
               )}
@@ -458,12 +473,21 @@ function EditTradeDialog({
               )}
             />
             <DialogFooter className="md:col-span-2 gap-2">
-              <Button type="button" variant="ghost" onClick={onClose}>
+              <Button
+                type="button"
+                variant="ghost"
+                onClick={onClose}
+                disabled={isSaving}
+              >
                 Cancel
               </Button>
-              <Button type="submit" className="gap-2">
-                <Pencil className="h-4 w-4" />
-                Save Changes
+              <Button type="submit" className="gap-2" disabled={isSaving}>
+                {isSaving ? (
+                  <Loader2 className="h-4 w-4 animate-spin" />
+                ) : (
+                  <Pencil className="h-4 w-4" />
+                )}
+                {isSaving ? "Saving..." : "Save Changes"}
               </Button>
             </DialogFooter>
           </form>
@@ -685,8 +709,18 @@ export default function TradesPage() {
                       <TableCell className="text-xs font-mono">
                         {trade.po3Time}
                       </TableCell>
-                      <TableCell className="text-[11px] font-mono text-muted-foreground">
-                        {trade.dol}
+                      <TableCell>
+                        <div className="flex flex-wrap gap-1 max-w-32">
+                          {trade.dol?.map((d) => (
+                            <Badge
+                              key={d}
+                              variant="secondary"
+                              className="font-mono text-[9px] py-0 px-1"
+                            >
+                              {d}
+                            </Badge>
+                          ))}
+                        </div>
                       </TableCell>
                       <TableCell>
                         <div className="flex flex-wrap gap-1 max-w-32">

@@ -25,7 +25,7 @@ export const tradeSchema = z.object({
   rating: z.string().min(1, "Rating is required"),
   rr: z.coerce.number().min(0),
   outcome: z.enum(outcomeOptions),
-  dol: z.string().min(1, "DOL is required"),
+  dol: z.array(z.string()).min(1, "At least one DOL is required"),
   model: z.array(z.string()).min(1, "At least one model is required"),
   reason: z.string().trim().min(1, "Reason is required"),
   emotions: z.string().trim().min(1, "Emotions note is required"),
@@ -57,8 +57,16 @@ function rowToTrade(row: Record<string, unknown>): Trade {
     rating: row.rating as string,
     rr: Number(row.rr),
     outcome: row.outcome as Trade["outcome"],
-    dol: (row.dol as string) ?? "",
-    model: (row.model as string[]) ?? [],
+    dol: Array.isArray(row.dol)
+      ? (row.dol as string[])
+      : typeof row.dol === "string" && row.dol
+        ? [row.dol]
+        : [],
+    model: Array.isArray(row.model)
+      ? (row.model as string[])
+      : typeof row.model === "string" && row.model
+        ? [row.model]
+        : [],
     reason: (row.reason as string) ?? "",
     emotions: (row.emotions as string) ?? "",
     screenshotLow: (row.screenshot_low as string) ?? "",
@@ -322,18 +330,20 @@ export function JournalProvider({ children }: { children: ReactNode }) {
       { wins: number; total: number; totalRR: number }
     >();
     for (const t of trades) {
-      if (!t.dol) continue;
+      if (!t.dol || t.dol.length === 0) continue;
       const tradeRR =
         t.outcome === "win"
           ? Number(t.rr || 0)
           : t.outcome === "loss"
             ? -Math.max(Number(t.rr || 0), 1)
             : 0;
-      const curr = dolMap.get(t.dol) || { wins: 0, total: 0, totalRR: 0 };
-      curr.total++;
-      if (t.outcome === "win") curr.wins++;
-      curr.totalRR += tradeRR;
-      dolMap.set(t.dol, curr);
+      for (const d of t.dol) {
+        const curr = dolMap.get(d) || { wins: 0, total: 0, totalRR: 0 };
+        curr.total++;
+        if (t.outcome === "win") curr.wins++;
+        curr.totalRR += tradeRR;
+        dolMap.set(d, curr);
+      }
     }
     const dolAnalytics = Array.from(dolMap.entries())
       .map(([dol, data]) => ({
@@ -408,7 +418,7 @@ export function tradesToCsv(trades: Trade[]): string {
     t.entryTimeframe,
     t.po3Time ?? "",
     t.rating,
-    t.dol ?? "",
+    (t.dol ?? []).join(" | "),
     (t.model ?? []).join(" | "),
     t.rr,
     t.outcome,

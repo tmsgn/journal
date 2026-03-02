@@ -165,7 +165,7 @@ export default function DashboardPage() {
       </div>
 
       {/* Playbook / Analytics */}
-      <div className="grid gap-6 lg:grid-cols-3">
+      <div className="grid gap-6 lg:grid-cols-2">
         <Card className="border-border/60 bg-card/80 backdrop-blur-sm">
           <CardHeader className="pb-2">
             <CardTitle className="text-base font-semibold">
@@ -266,74 +266,6 @@ export default function DashboardPage() {
                       className="text-center py-6 text-xs text-muted-foreground italic border-0"
                     >
                       No models used yet
-                    </TableCell>
-                  </TableRow>
-                )}
-              </TableBody>
-            </Table>
-          </CardContent>
-        </Card>
-
-        {/* Playbook: DOLs */}
-        <Card className="border-border/60 bg-card/80 backdrop-blur-sm lg:col-span-1">
-          <CardHeader className="pb-2">
-            <CardTitle className="text-base font-semibold">
-              DOL Distribution
-            </CardTitle>
-            <CardDescription className="text-xs">
-              Draw on Liquidity edge
-            </CardDescription>
-          </CardHeader>
-          <CardContent className="p-0 pb-1">
-            <Table>
-              <TableHeader>
-                <TableRow className="border-border/50 hover:bg-transparent">
-                  <TableHead className="pl-6 text-xs text-muted-foreground w-full">
-                    Liquidity
-                  </TableHead>
-                  <TableHead className="text-xs text-muted-foreground text-right">
-                    Win%
-                  </TableHead>
-                  <TableHead className="text-xs text-muted-foreground text-right">
-                    RR
-                  </TableHead>
-                  <TableHead className="pr-6 text-xs text-muted-foreground text-right w-16">
-                    #
-                  </TableHead>
-                </TableRow>
-              </TableHeader>
-              <TableBody>
-                {stats.dolAnalytics.map((d) => (
-                  <TableRow
-                    key={d.dol}
-                    className="border-border/40 hover:bg-primary/5"
-                  >
-                    <TableCell className="pl-6 font-semibold text-xs whitespace-nowrap">
-                      {d.dol}
-                    </TableCell>
-                    <TableCell
-                      className={`text-right text-xs font-mono font-medium ${d.winRate >= 50 ? "text-emerald-500" : "text-muted-foreground"}`}
-                    >
-                      {numberFormatter.format(d.winRate)}%
-                    </TableCell>
-                    <TableCell
-                      className={`text-right text-xs font-mono font-bold ${d.totalRR > 0 ? "text-emerald-500" : d.totalRR < 0 ? "text-red-500" : ""}`}
-                    >
-                      {d.totalRR > 0 ? "+" : ""}
-                      {numberFormatter.format(d.totalRR)}R
-                    </TableCell>
-                    <TableCell className="pr-6 text-right text-xs text-muted-foreground">
-                      {d.total}
-                    </TableCell>
-                  </TableRow>
-                ))}
-                {stats.dolAnalytics.length === 0 && (
-                  <TableRow>
-                    <TableCell
-                      colSpan={4}
-                      className="text-center py-6 text-xs text-muted-foreground italic border-0"
-                    >
-                      No DOLs used yet
                     </TableCell>
                   </TableRow>
                 )}

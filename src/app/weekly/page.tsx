@@ -374,37 +374,41 @@ export default function WeeklyPage() {
                                 key={trade.id}
                                 type="button"
                                 onClick={() => setSelectedTrade(trade)}
-                                className="w-full flex items-center gap-2 text-left rounded-md px-2 py-1.5 hover:bg-primary/5 transition-colors"
+                                className="w-full flex items-start gap-2 text-left rounded-md px-2 py-2 hover:bg-primary/5 transition-colors"
                               >
-                                {trade.outcome === "win" ? (
-                                  <TrendingUp className="h-3 w-3 text-emerald-400 shrink-0" />
-                                ) : trade.outcome === "loss" ? (
-                                  <TrendingDown className="h-3 w-3 text-red-400 shrink-0" />
-                                ) : (
-                                  <Minus className="h-3 w-3 text-yellow-400 shrink-0" />
-                                )}
-                                <Badge
-                                  variant="secondary"
-                                  className="font-mono text-[10px] py-0"
-                                >
-                                  {trade.entryTimeframe}
-                                </Badge>
-                                <span className="text-xs font-bold text-primary">
-                                  {trade.rating}
-                                </span>
-                                <span className="text-xs text-muted-foreground truncate flex-1">
+                                <div className="flex shrink-0 items-center gap-2 mt-0.5">
+                                  {trade.outcome === "win" ? (
+                                    <TrendingUp className="h-3 w-3 text-emerald-400 shrink-0" />
+                                  ) : trade.outcome === "loss" ? (
+                                    <TrendingDown className="h-3 w-3 text-red-400 shrink-0" />
+                                  ) : (
+                                    <Minus className="h-3 w-3 text-yellow-400 shrink-0" />
+                                  )}
+                                  <Badge
+                                    variant="secondary"
+                                    className="font-mono text-[10px] py-0"
+                                  >
+                                    {trade.entryTimeframe}
+                                  </Badge>
+                                  <span className="text-xs font-bold text-primary">
+                                    {trade.rating}
+                                  </span>
+                                </div>
+                                <span className="text-xs text-muted-foreground flex-1 break-words mt-0.5 max-w-full">
                                   {trade.reason}
                                 </span>
-                                <span
-                                  className={`text-xs font-mono font-semibold shrink-0 ${rrColor(trade.outcome === "win" ? 1 : -1)}`}
-                                >
-                                  {trade.outcome === "win"
-                                    ? "+"
-                                    : trade.outcome === "loss"
-                                      ? "-"
-                                      : ""}
-                                  {numberFormatter.format(trade.rr)}R
-                                </span>
+                                <div className="text-right shrink-0 mt-0.5">
+                                  <span
+                                    className={`text-xs font-mono font-semibold ${rrColor(trade.outcome === "win" ? 1 : -1)}`}
+                                  >
+                                    {trade.outcome === "win"
+                                      ? "+"
+                                      : trade.outcome === "loss"
+                                        ? "-"
+                                        : ""}
+                                    {numberFormatter.format(trade.rr)}R
+                                  </span>
+                                </div>
                               </button>
                             ))}
                           </div>

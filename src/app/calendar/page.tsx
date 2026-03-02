@@ -236,202 +236,220 @@ export default function CalendarPage() {
         ))}
       </div>
 
-      {/* Calendar */}
-      <Card className="border-border/60 bg-card/80 backdrop-blur-sm">
-        <CardHeader className="pb-4">
-          <div className="flex items-center justify-between">
-            <div>
-              <CardTitle className="text-base font-semibold">
-                {MONTHS[month]} {year}
-              </CardTitle>
-              <CardDescription className="text-xs">
-                {totalDays} days · click a day to see trades
-              </CardDescription>
-            </div>
-            <div className="flex gap-1">
-              <Button
-                variant="ghost"
-                size="icon"
-                className="h-8 w-8"
-                onClick={prevMonth}
-              >
-                <ChevronLeft className="h-4 w-4" />
-              </Button>
-              <Button
-                variant="ghost"
-                size="icon"
-                className="h-8 w-8"
-                onClick={nextMonth}
-              >
-                <ChevronRight className="h-4 w-4" />
-              </Button>
-            </div>
-          </div>
-        </CardHeader>
-        <CardContent>
-          {/* Day labels */}
-          <div className="grid grid-cols-7 mb-2">
-            {DAYS.map((d) => (
-              <div
-                key={d}
-                className="text-center text-[11px] font-medium text-muted-foreground/60 py-1"
-              >
-                {d}
+      {/* Main content grid */}
+      <div className="grid lg:grid-cols-[1fr_380px] gap-6 items-start">
+        {/* Calendar */}
+        <Card className="border-border/60 bg-card/80 backdrop-blur-sm">
+          <CardHeader className="pb-4">
+            <div className="flex items-center justify-between">
+              <div>
+                <CardTitle className="text-base font-semibold">
+                  {MONTHS[month]} {year}
+                </CardTitle>
+                <CardDescription className="text-xs">
+                  {totalDays} days · click a day to see trades
+                </CardDescription>
               </div>
-            ))}
-          </div>
+              <div className="flex gap-1">
+                <Button
+                  variant="ghost"
+                  size="icon"
+                  className="h-8 w-8"
+                  onClick={prevMonth}
+                >
+                  <ChevronLeft className="h-4 w-4" />
+                </Button>
+                <Button
+                  variant="ghost"
+                  size="icon"
+                  className="h-8 w-8"
+                  onClick={nextMonth}
+                >
+                  <ChevronRight className="h-4 w-4" />
+                </Button>
+              </div>
+            </div>
+          </CardHeader>
+          <CardContent>
+            {/* Day labels */}
+            <div className="grid grid-cols-7 mb-2">
+              {DAYS.map((d) => (
+                <div
+                  key={d}
+                  className="text-center text-[11px] font-medium text-muted-foreground/60 py-1"
+                >
+                  {d}
+                </div>
+              ))}
+            </div>
 
-          {/* Weeks */}
-          <div className="flex flex-col gap-1.5">
-            {weeks.map((week, wi) => (
-              <div key={wi} className="grid grid-cols-7 gap-1.5">
-                {week.map((day, di) => {
-                  if (!day) {
-                    return <div key={di} className="aspect-square" />;
-                  }
-                  const dateStr = `${year}-${String(month + 1).padStart(2, "0")}-${String(day).padStart(2, "0")}`;
-                  const data = dayMap.get(dateStr);
-                  const isToday =
-                    dateStr === new Date().toISOString().slice(0, 10);
-                  const colorClass = getDayIntensity(data);
-                  const hasData = data && data.trades.length > 0;
+            {/* Weeks */}
+            <div className="flex flex-col gap-1.5">
+              {weeks.map((week, wi) => (
+                <div key={wi} className="grid grid-cols-7 gap-1.5">
+                  {week.map((day, di) => {
+                    if (!day) {
+                      return <div key={di} className="aspect-square" />;
+                    }
+                    const dateStr = `${year}-${String(month + 1).padStart(2, "0")}-${String(day).padStart(2, "0")}`;
+                    const data = dayMap.get(dateStr);
+                    const isToday =
+                      dateStr === new Date().toISOString().slice(0, 10);
+                    const colorClass = getDayIntensity(data);
+                    const hasData = data && data.trades.length > 0;
 
-                  return (
-                    <button
-                      key={di}
-                      type="button"
-                      onClick={() => handleDayClick(day)}
-                      title={
-                        hasData
-                          ? `${data!.trades.length} trade${data!.trades.length > 1 ? "s" : ""} · ${rrSign}${numberFormatter.format(data!.netRR)}R`
-                          : dateStr
-                      }
-                      className={`
+                    return (
+                      <button
+                        key={di}
+                        type="button"
+                        onClick={() => handleDayClick(day)}
+                        title={
+                          hasData
+                            ? `${data!.trades.length} trade${data!.trades.length > 1 ? "s" : ""} · ${rrSign}${numberFormatter.format(data!.netRR)}R`
+                            : dateStr
+                        }
+                        className={`
                         aspect-square rounded-lg flex flex-col items-center justify-center transition-all duration-150 shadow-sm
                         ${colorClass}
                         ${isToday ? "ring-2 ring-primary ring-offset-2 ring-offset-card" : ""}
                         ${hasData ? "cursor-pointer scale-100 hover:scale-105 shadow" : "cursor-default"}
                       `}
-                    >
-                      <span className="text-[11px] font-semibold leading-none">
-                        {day}
-                      </span>
-                      {hasData && (
-                        <span className="text-[9px] leading-none mt-0.5 opacity-90">
-                          {data!.trades.length}t
-                        </span>
-                      )}
-                    </button>
-                  );
-                })}
-              </div>
-            ))}
-          </div>
-
-          {/* Legend */}
-          <div className="flex items-center gap-4 mt-5 pt-4 border-t border-border/40">
-            {[
-              { color: "bg-emerald-500/80", label: "Win day" },
-              { color: "bg-red-500/80", label: "Loss day" },
-              { color: "bg-yellow-500/70", label: "Mixed / BE" },
-              { color: "bg-muted/30", label: "No trades" },
-            ].map((l) => (
-              <div key={l.label} className="flex items-center gap-1.5">
-                <span className={`h-3 w-3 rounded-sm ${l.color}`} />
-                <span className="text-[11px] text-muted-foreground">
-                  {l.label}
-                </span>
-              </div>
-            ))}
-          </div>
-        </CardContent>
-      </Card>
-
-      {/* Day detail panel */}
-      {selectedDay && (
-        <Card className="border-border/60 bg-card/80 backdrop-blur-sm">
-          <CardHeader className="pb-3">
-            <div className="flex items-center justify-between">
-              <div>
-                <CardTitle className="text-base font-semibold">
-                  {selectedDay.date}
-                </CardTitle>
-                <CardDescription className="text-xs">
-                  {selectedDay.trades.length} trade
-                  {selectedDay.trades.length > 1 ? "s" : ""} ·{" "}
-                  {selectedDay.wins}W · {selectedDay.losses}L ·{" "}
-                  {selectedDay.breakevens}BE ·{" "}
-                  <span
-                    className={
-                      selectedDay.netRR >= 0
-                        ? "text-emerald-400"
-                        : "text-red-400"
-                    }
-                  >
-                    {selectedDay.netRR >= 0 ? "+" : ""}
-                    {numberFormatter.format(selectedDay.netRR)}R
-                  </span>
-                </CardDescription>
-              </div>
-              <Button
-                variant="ghost"
-                size="sm"
-                className="text-xs"
-                onClick={() => setSelectedDay(null)}
-              >
-                Close
-              </Button>
-            </div>
-          </CardHeader>
-          <CardContent className="p-0 pb-2">
-            <div className="divide-y divide-border/30">
-              {selectedDay.trades.map((trade) => (
-                <button
-                  key={trade.id}
-                  type="button"
-                  onClick={() => setSelectedTrade(trade)}
-                  className="w-full flex items-center gap-3 px-4 py-2.5 hover:bg-primary/5 transition-colors text-left"
-                >
-                  <span
-                    className={`h-2 w-2 rounded-full shrink-0 ${trade.outcome === "win" ? "bg-emerald-500" : trade.outcome === "loss" ? "bg-red-500" : "bg-yellow-500"}`}
-                  />
-                  <div className="flex-1 min-w-0">
-                    <div className="flex items-center gap-2">
-                      <Badge
-                        variant="secondary"
-                        className="font-mono text-[10px] py-0"
                       >
-                        {trade.entryTimeframe}
-                      </Badge>
-                      <span className="text-xs font-bold text-primary">
-                        {trade.rating}
-                      </span>
-                      <span className="text-xs text-muted-foreground truncate">
-                        {trade.reason}
-                      </span>
-                    </div>
-                  </div>
-                  <span
-                    className={`text-sm font-bold font-mono shrink-0 ${trade.outcome === "win" ? "text-emerald-400" : trade.outcome === "loss" ? "text-red-400" : "text-yellow-400"}`}
-                  >
-                    {trade.outcome === "win"
-                      ? "+"
-                      : trade.outcome === "loss"
-                        ? "-"
-                        : ""}
-                    {numberFormatter.format(trade.rr)}R
+                        <span className="text-[11px] font-semibold leading-none">
+                          {day}
+                        </span>
+                        {hasData && (
+                          <span className="text-[9px] leading-none mt-0.5 opacity-90">
+                            {data!.trades.length}t
+                          </span>
+                        )}
+                      </button>
+                    );
+                  })}
+                </div>
+              ))}
+            </div>
+
+            {/* Legend */}
+            <div className="flex items-center gap-4 mt-5 pt-4 border-t border-border/40">
+              {[
+                { color: "bg-emerald-500/80", label: "Win day" },
+                { color: "bg-red-500/80", label: "Loss day" },
+                { color: "bg-yellow-500/70", label: "Mixed / BE" },
+                { color: "bg-muted/30", label: "No trades" },
+              ].map((l) => (
+                <div key={l.label} className="flex items-center gap-1.5">
+                  <span className={`h-3 w-3 rounded-sm ${l.color}`} />
+                  <span className="text-[11px] text-muted-foreground">
+                    {l.label}
                   </span>
-                  {trade.outcome === "win" ? (
-                    <TrendingUp className="h-3.5 w-3.5 text-emerald-400 shrink-0" />
-                  ) : trade.outcome === "loss" ? (
-                    <TrendingDown className="h-3.5 w-3.5 text-red-400 shrink-0" />
-                  ) : null}
-                </button>
+                </div>
               ))}
             </div>
           </CardContent>
         </Card>
-      )}
+
+        {/* Day detail side-panel */}
+        <div className="flex flex-col gap-6 sticky top-6">
+          {selectedDay ? (
+            <Card className="border-border/60 bg-card/80 backdrop-blur-sm flex flex-col max-h-[calc(100vh-8rem)]">
+              <CardHeader className="pb-3 shrink-0">
+                <div className="flex items-center justify-between">
+                  <div>
+                    <CardTitle className="text-base font-semibold">
+                      {selectedDay.date}
+                    </CardTitle>
+                    <CardDescription className="text-xs">
+                      {selectedDay.trades.length} trade
+                      {selectedDay.trades.length > 1 ? "s" : ""} ·{" "}
+                      {selectedDay.wins}W · {selectedDay.losses}L ·{" "}
+                      {selectedDay.breakevens}BE ·{" "}
+                      <span
+                        className={
+                          selectedDay.netRR >= 0
+                            ? "text-emerald-400"
+                            : "text-red-400"
+                        }
+                      >
+                        {selectedDay.netRR >= 0 ? "+" : ""}
+                        {numberFormatter.format(selectedDay.netRR)}R
+                      </span>
+                    </CardDescription>
+                  </div>
+                  <Button
+                    variant="ghost"
+                    size="sm"
+                    className="text-xs"
+                    onClick={() => setSelectedDay(null)}
+                  >
+                    Clear
+                  </Button>
+                </div>
+              </CardHeader>
+              <CardContent className="p-0 pb-2 overflow-y-auto">
+                <div className="divide-y divide-border/30">
+                  {selectedDay.trades.map((trade) => (
+                    <button
+                      key={trade.id}
+                      type="button"
+                      onClick={() => setSelectedTrade(trade)}
+                      className="w-full flex items-center gap-3 px-4 py-3 hover:bg-primary/5 transition-colors text-left group"
+                    >
+                      <span
+                        className={`h-2 w-2 rounded-full shrink-0 ${trade.outcome === "win" ? "bg-emerald-500" : trade.outcome === "loss" ? "bg-red-500" : "bg-yellow-500"}`}
+                      />
+                      <div className="flex-1 min-w-0">
+                        <div className="flex items-center gap-2 mb-1">
+                          <Badge
+                            variant="secondary"
+                            className="font-mono text-[9px] py-0 px-1"
+                          >
+                            {trade.entryTimeframe}
+                          </Badge>
+                          <span className="text-xs font-bold text-primary">
+                            {trade.rating}
+                          </span>
+                        </div>
+                        <span className="text-xs text-muted-foreground block line-clamp-2">
+                          {trade.reason}
+                        </span>
+                      </div>
+                      <div className="text-right flex flex-col items-end gap-1">
+                        <span
+                          className={`text-sm font-bold font-mono shrink-0 ${trade.outcome === "win" ? "text-emerald-400" : trade.outcome === "loss" ? "text-red-400" : "text-yellow-400"}`}
+                        >
+                          {trade.outcome === "win"
+                            ? "+"
+                            : trade.outcome === "loss"
+                              ? "-"
+                              : ""}
+                          {numberFormatter.format(trade.rr)}R
+                        </span>
+                        {trade.outcome === "win" ? (
+                          <TrendingUp className="h-3.5 w-3.5 text-emerald-400 shrink-0 opacity-80" />
+                        ) : trade.outcome === "loss" ? (
+                          <TrendingDown className="h-3.5 w-3.5 text-red-400 shrink-0 opacity-80" />
+                        ) : null}
+                      </div>
+                    </button>
+                  ))}
+                </div>
+              </CardContent>
+            </Card>
+          ) : (
+            <Card className="border-border/60 bg-card/80 backdrop-blur-sm opacity-60 flex flex-col h-64 shadow-none">
+              <CardContent className="flex flex-col items-center justify-center p-12 text-center text-muted-foreground h-full flex-1 gap-2">
+                <CalendarDays className="h-8 w-8 opacity-40" />
+                <p className="text-sm font-medium">No Date Selected</p>
+                <p className="text-xs opacity-70">
+                  Select a populated day on the calendar to preview trade
+                  details.
+                </p>
+              </CardContent>
+            </Card>
+          )}
+        </div>
+      </div>
 
       <TradeDetailSheet
         trade={selectedTrade}
