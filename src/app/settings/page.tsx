@@ -12,6 +12,9 @@ import {
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Badge } from "@/components/ui/badge";
+import { Switch } from "@/components/ui/switch";
+import { Copy } from "lucide-react";
+import { toast } from "sonner";
 import { Settings, Plus, X } from "lucide-react";
 
 function ConfigSection({
@@ -98,7 +101,15 @@ function ConfigSection({
 }
 
 export default function SettingsPage() {
-  const { settings, addOption, removeOption, hydrated } = useSettings();
+  const {
+    settings,
+    isPublic,
+    shareToken,
+    addOption,
+    removeOption,
+    togglePublic,
+    hydrated,
+  } = useSettings();
 
   if (!hydrated) {
     return (
@@ -126,6 +137,50 @@ export default function SettingsPage() {
       </div>
 
       <div className="grid gap-6 md:grid-cols-2">
+        <Card className="border-border/60 bg-card/80 backdrop-blur-sm md:col-span-2">
+          <CardHeader className="pb-3">
+            <CardTitle className="text-base font-semibold">
+              Share Your Journal
+            </CardTitle>
+            <CardDescription className="text-xs">
+              Make your logged trades publicly visible so others can review your
+              journal. Your private data and editable fields remains secure.
+            </CardDescription>
+          </CardHeader>
+          <CardContent className="space-y-4">
+            <div className="flex items-center justify-between">
+              <div className="space-y-0.5">
+                <p className="text-sm font-medium">Public Access</p>
+                <p className="text-xs text-muted-foreground">
+                  Anyone with the link can view your trades
+                </p>
+              </div>
+              <Switch checked={isPublic} onCheckedChange={togglePublic} />
+            </div>
+            {isPublic && shareToken && (
+              <div className="flex items-center gap-2 mt-4">
+                <Input
+                  readOnly
+                  className="font-mono text-xs text-muted-foreground"
+                  value={`${typeof window !== "undefined" ? window.location.origin : ""}/shared/${shareToken}`}
+                />
+                <Button
+                  size="icon"
+                  variant="secondary"
+                  onClick={() => {
+                    navigator.clipboard.writeText(
+                      `${window.location.origin}/shared/${shareToken}`,
+                    );
+                    toast.success("Link copied to clipboard!");
+                  }}
+                >
+                  <Copy className="h-4 w-4" />
+                </Button>
+              </div>
+            )}
+          </CardContent>
+        </Card>
+
         <ConfigSection
           title="Entry Timeframes"
           description="E.g. 15sec, 1min, 5min, 1H. Used for categorization."

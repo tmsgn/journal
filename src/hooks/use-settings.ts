@@ -35,6 +35,8 @@ type ArrayKeys = {
 
 interface SettingsStore {
   settings: JournalSettings;
+  isPublic: boolean;
+  shareToken: string | null;
   hydrated: boolean;
   userId: string | null;
   setUserId: (id: string | null) => void;
@@ -43,10 +45,13 @@ interface SettingsStore {
   loadSettings: (userId: string) => Promise<void>;
   addOption: (key: ArrayKeys, option: string) => Promise<void>;
   removeOption: (key: ArrayKeys, option: string) => Promise<void>;
+  togglePublic: (v: boolean) => Promise<void>;
 }
 
 export const useSettingsStore = create<SettingsStore>((set, get) => ({
   settings: defaultSettings,
+  isPublic: false,
+  shareToken: null,
   hydrated: false,
   userId: null,
   setUserId: (id) => set({ userId: id }),
@@ -57,7 +62,7 @@ export const useSettingsStore = create<SettingsStore>((set, get) => ({
     const supabase = createClient();
     const { data, error } = await supabase
       .from("user_settings")
-      .select("settings")
+      .select("settings, is_public, share_token")
       .eq("user_id", userId)
       .single();
 
@@ -67,6 +72,8 @@ export const useSettingsStore = create<SettingsStore>((set, get) => ({
           ...defaultSettings,
           ...(data.settings as unknown as Partial<JournalSettings>),
         },
+        isPublic: data.is_public ?? false,
+        shareToken: data.share_token,
         hydrated: true,
       });
     } else {
@@ -74,6 +81,15 @@ export const useSettingsStore = create<SettingsStore>((set, get) => ({
       await supabase
         .from("user_settings")
         .insert({ user_id: userId, settings: defaultSettings as any });
+      // Fetch the generated token if we just inserted
+      const { data: newData } = await supabase
+        .from("user_settings")
+        .select("is_public, share_token")
+        .eq("user_id", userId)
+        .single();
+      if (newData) {
+        set({ isPublic: newData.is_public, shareToken: newData.share_token });
+      }
     }
   },
 
@@ -111,6 +127,18 @@ export const useSettingsStore = create<SettingsStore>((set, get) => ({
         .eq("user_id", state.userId);
     }
   },
+
+  togglePublic: async (isPublic: boolean) => {
+    const state = get();
+    if (!state.userId) return;
+    set({ isPublic });
+
+    const supabase = createClient();
+    await supabase
+      .from("user_settings")
+      .update({ is_public: isPublic })
+      .eq("user_id", state.userId);
+  },
 }));
 
 export function useSettings() {
@@ -139,9 +167,12 @@ export function useSettings() {
 
   return {
     settings: store.settings,
+    isPublic: store.isPublic,
+    shareToken: store.shareToken,
     setSettings: store.setSettings,
     hydrated: store.hydrated,
     addOption: store.addOption,
     removeOption: store.removeOption,
+    togglePublic: store.togglePublic,
   };
 }

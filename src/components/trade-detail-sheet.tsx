@@ -1,5 +1,9 @@
 "use client";
 
+import { useState } from "react";
+import { createClient } from "@/lib/supabase";
+import { toast } from "sonner";
+
 import {
   Sheet,
   SheetContent,
@@ -25,6 +29,8 @@ import {
   Minus,
   Target,
   Activity,
+  Share2,
+  Loader2,
 } from "lucide-react";
 import { cn } from "@/lib/utils";
 
@@ -108,7 +114,38 @@ export function TradeDetailSheet({
   onClose,
   onEdit,
 }: TradeDetailSheetProps) {
+  const [isSharing, setIsSharing] = useState(false);
+
   if (!trade) return null;
+
+  const handleShare = async () => {
+    try {
+      setIsSharing(true);
+      let token = trade.shareToken;
+
+      if (!token) {
+        token = crypto.randomUUID();
+        const supabase = createClient();
+        const { error } = await supabase
+          .from("journal_trades")
+          .update({ share_token: token })
+          .eq("id", trade.id);
+
+        if (error) throw new Error(error.message);
+
+        // Mutate local state for immediate re-use
+        trade.shareToken = token;
+      }
+
+      const shareUrl = `${window.location.origin}/shared/trade/${token}`;
+      await navigator.clipboard.writeText(shareUrl);
+      toast.success("Trade share link copied to clipboard!");
+    } catch (err) {
+      toast.error(`Failed to share: ${err}`);
+    } finally {
+      setIsSharing(false);
+    }
+  };
 
   const rrSign =
     trade.outcome === "win" ? "+" : trade.outcome === "loss" ? "-" : "";
@@ -156,6 +193,20 @@ export function TradeDetailSheet({
                   <Pencil className="h-3.5 w-3.5" />
                 </Button>
               )}
+              <Button
+                size="icon"
+                variant="ghost"
+                className="h-8 w-8 text-muted-foreground hover:text-primary"
+                onClick={handleShare}
+                disabled={isSharing}
+                title="Share this specific trade"
+              >
+                {isSharing ? (
+                  <Loader2 className="h-3.5 w-3.5 animate-spin" />
+                ) : (
+                  <Share2 className="h-3.5 w-3.5" />
+                )}
+              </Button>
               <Button
                 size="icon"
                 variant="ghost"

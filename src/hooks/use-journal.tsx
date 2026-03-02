@@ -41,15 +41,17 @@ export type TradeFormValues = z.infer<typeof tradeSchema>;
 
 export type Trade = TradeFormValues & {
   id: string;
+  shareToken?: string | null;
   createdAt: string;
 };
 
 // ─── Helpers ─────────────────────────────────────────────────────────────────
 
 // biome-ignore lint: any is fine for DB rows
-function rowToTrade(row: Record<string, unknown>): Trade {
+export function rowToTrade(row: Record<string, unknown>): Trade {
   return {
     id: row.id as string,
+    shareToken: (row.share_token as string) ?? null,
     createdAt: row.created_at as string,
     tradeDate: row.trade_date as string,
     entryTimeframe: row.entry_timeframe as string,
