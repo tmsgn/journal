@@ -24,13 +24,11 @@ import {
 } from "@/components/ui/table";
 import { Badge } from "@/components/ui/badge";
 import { useJournal } from "@/hooks/use-journal";
-import { EquityCurveChart } from "@/components/equity-curve-chart";
 import {
   TrendingUp,
   TrendingDown,
   Target,
   Activity,
-  Flame,
   BarChart2,
 } from "lucide-react";
 import Link from "next/link";
@@ -133,7 +131,7 @@ export default function DashboardPage() {
       </div>
 
       {/* Stat cards */}
-      <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
+      <div className="grid gap-4 sm:grid-cols-3 lg:grid-cols-3">
         <StatCard
           label="Total Trades"
           value={stats.total}
@@ -154,13 +152,6 @@ export default function DashboardPage() {
           sub="Avg risk-reward"
           icon={TrendingUp}
           trend={stats.avgRR >= 1 ? "up" : "down"}
-        />
-        <StatCard
-          label="Net RR"
-          value={`${rrSign}${numberFormatter.format(stats.totalRR)}`}
-          sub={streakLabel}
-          icon={Flame}
-          trend={stats.totalRR >= 0 ? "up" : "down"}
         />
       </div>
 
@@ -226,9 +217,6 @@ export default function DashboardPage() {
                   <TableHead className="text-xs text-muted-foreground text-right">
                     Win%
                   </TableHead>
-                  <TableHead className="text-xs text-muted-foreground text-right">
-                    RR
-                  </TableHead>
                   <TableHead className="pr-6 text-xs text-muted-foreground text-right w-16">
                     #
                   </TableHead>
@@ -248,12 +236,6 @@ export default function DashboardPage() {
                     >
                       {numberFormatter.format(m.winRate)}%
                     </TableCell>
-                    <TableCell
-                      className={`text-right text-xs font-mono font-bold ${m.totalRR > 0 ? "text-emerald-500" : m.totalRR < 0 ? "text-red-500" : ""}`}
-                    >
-                      {m.totalRR > 0 ? "+" : ""}
-                      {numberFormatter.format(m.totalRR)}R
-                    </TableCell>
                     <TableCell className="pr-6 text-right text-xs text-muted-foreground">
                       {m.total}
                     </TableCell>
@@ -262,7 +244,7 @@ export default function DashboardPage() {
                 {stats.modelAnalytics.length === 0 && (
                   <TableRow>
                     <TableCell
-                      colSpan={4}
+                      colSpan={3}
                       className="text-center py-6 text-xs text-muted-foreground italic border-0"
                     >
                       No models used yet
@@ -274,21 +256,6 @@ export default function DashboardPage() {
           </CardContent>
         </Card>
       </div>
-
-      {/* Equity Curve */}
-      <Card className="border-border/60 bg-card/80 backdrop-blur-sm">
-        <CardHeader className="pb-2">
-          <CardTitle className="text-base font-semibold">
-            Equity Curve
-          </CardTitle>
-          <CardDescription className="text-xs">
-            Cumulative RR over time
-          </CardDescription>
-        </CardHeader>
-        <CardContent>
-          <EquityCurveChart data={stats.equityCurve} />
-        </CardContent>
-      </Card>
 
       {/* Recent Trades */}
       <Card className="border-border/60 bg-card/80 backdrop-blur-sm">
@@ -326,9 +293,6 @@ export default function DashboardPage() {
                 <TableHead className="text-xs font-medium text-muted-foreground">
                   Rating
                 </TableHead>
-                <TableHead className="text-xs font-medium text-muted-foreground">
-                  RR
-                </TableHead>
                 <TableHead className="pr-6 text-xs font-medium text-muted-foreground">
                   Outcome
                 </TableHead>
@@ -338,7 +302,7 @@ export default function DashboardPage() {
               {recentTrades.length === 0 ? (
                 <TableRow>
                   <TableCell
-                    colSpan={6}
+                    colSpan={5}
                     className="text-muted-foreground text-center py-12"
                   >
                     <div className="flex flex-col items-center gap-2">
@@ -379,9 +343,6 @@ export default function DashboardPage() {
                       <span className="font-semibold text-primary">
                         {trade.rating}
                       </span>
-                    </TableCell>
-                    <TableCell className="text-xs font-mono font-semibold">
-                      {numberFormatter.format(trade.rr)}R
                     </TableCell>
                     <TableCell className="pr-6">
                       {trade.outcome === "win" ? (
