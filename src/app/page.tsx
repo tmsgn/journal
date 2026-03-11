@@ -251,23 +251,16 @@ export default function DashboardPage() {
       </div>
 
       {/* Secondary metrics row */}
-      <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-4">
+      <div className="grid gap-3 sm:grid-cols-3">
         <div className="flex items-center gap-3 rounded-xl border border-border/50 bg-card/60 px-4 py-3">
-          <div className="flex h-8 w-8 items-center justify-center rounded-lg bg-emerald-500/10">
-            <TrendingUp className="h-3.5 w-3.5 text-emerald-500" />
+          <div className="flex h-8 w-8 items-center justify-center rounded-lg bg-primary/10">
+            <TrendingUp className="h-3.5 w-3.5 text-primary" />
           </div>
           <div>
-            <p className="text-[10px] uppercase tracking-widest text-muted-foreground font-semibold">Avg Win</p>
-            <p className="text-sm font-bold font-trading text-emerald-400">+{fmt.format(stats.avgWin)}R</p>
-          </div>
-        </div>
-        <div className="flex items-center gap-3 rounded-xl border border-border/50 bg-card/60 px-4 py-3">
-          <div className="flex h-8 w-8 items-center justify-center rounded-lg bg-red-500/10">
-            <TrendingDown className="h-3.5 w-3.5 text-red-400" />
-          </div>
-          <div>
-            <p className="text-[10px] uppercase tracking-widest text-muted-foreground font-semibold">Avg Loss</p>
-            <p className="text-sm font-bold font-trading text-red-400">-{fmt.format(stats.avgLoss)}R</p>
+            <p className="text-[10px] uppercase tracking-widest text-muted-foreground font-semibold">Avg RR</p>
+            <p className={`text-sm font-bold font-trading ${stats.avgRR > 0 ? "text-emerald-400" : "text-muted-foreground"}`}>
+              {stats.avgRR >= 0 ? "+" : ""}{fmt.format(stats.avgRR)}R
+            </p>
           </div>
         </div>
         <div className="flex items-center gap-3 rounded-xl border border-border/50 bg-card/60 px-4 py-3">
