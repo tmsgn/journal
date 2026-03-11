@@ -31,8 +31,25 @@ import {
   Activity,
   Share2,
   Loader2,
+  ArrowUpRight,
+  ArrowDownRight,
+  DollarSign,
+  Globe,
 } from "lucide-react";
 import { cn } from "@/lib/utils";
+
+const sessionLabels: Record<string, string> = {
+  london: "🇬🇧 London",
+  "new-york": "🇺🇸 New York",
+  asian: "🌏 Asian",
+  "london-close": "🔔 London Close",
+};
+
+const fmtPnl = new Intl.NumberFormat("en-US", {
+  style: "currency",
+  currency: "USD",
+  maximumFractionDigits: 0,
+});
 
 const numberFormatter = new Intl.NumberFormat("en-US", {
   maximumFractionDigits: 2,
@@ -220,10 +237,10 @@ export function TradeDetailSheet({
         </SheetHeader>
 
         <div className="flex-1 px-6 py-5 space-y-6 overflow-y-auto">
-          {/* RR Hero */}
+          {/* Hero */}
           <div
             className={cn(
-              "rounded-xl border px-5 py-4 flex items-center justify-between",
+              "rounded-xl border px-5 py-4",
               trade.outcome === "win"
                 ? "border-emerald-500/20 bg-emerald-500/5"
                 : trade.outcome === "loss"
@@ -231,58 +248,60 @@ export function TradeDetailSheet({
                   : "border-yellow-500/20 bg-yellow-500/5",
             )}
           >
-            <div>
-              <p className="text-[10px] font-semibold uppercase tracking-widest text-muted-foreground mb-1">
-                Risk / Reward
-              </p>
-              <p
-                className={cn(
-                  "text-3xl font-bold font-mono tracking-tight",
-                  rrColor,
-                )}
-              >
-                {rrSign}
-                {numberFormatter.format(trade.rr)}R
-              </p>
+            <div className="flex items-center justify-between mb-3">
+              <div>
+                <p className="text-[10px] font-semibold uppercase tracking-widest text-muted-foreground mb-1">
+                  Risk / Reward
+                </p>
+                <p className={cn("text-3xl font-bold font-mono tracking-tight", rrColor)}>
+                  {rrSign}{numberFormatter.format(trade.rr)}R
+                </p>
+              </div>
+              <div className="text-right">
+                <p className="text-[10px] font-semibold uppercase tracking-widest text-muted-foreground mb-1">
+                  Rating
+                </p>
+                <p className="text-2xl font-bold text-primary">{trade.rating}</p>
+              </div>
             </div>
-            <div className="text-right">
-              <p className="text-[10px] font-semibold uppercase tracking-widest text-muted-foreground mb-1">
-                Rating
-              </p>
-              <p className="text-2xl font-bold text-primary">{trade.rating}</p>
+            <div className="flex items-center gap-2 flex-wrap pt-2 border-t border-border/30">
+              {trade.direction && (
+                trade.direction === "long" ? (
+                  <span className="badge-long inline-flex items-center gap-1 text-[11px] font-semibold px-2 py-0.5 rounded-md">
+                    <ArrowUpRight className="h-3 w-3" /> Long
+                  </span>
+                ) : (
+                  <span className="badge-short inline-flex items-center gap-1 text-[11px] font-semibold px-2 py-0.5 rounded-md">
+                    <ArrowDownRight className="h-3 w-3" /> Short
+                  </span>
+                )
+              )}
+              {trade.session && (
+                <span className="text-[11px] text-muted-foreground bg-muted/50 px-2 py-0.5 rounded-md border border-border/40">
+                  {sessionLabels[trade.session] ?? trade.session}
+                </span>
+              )}
+              {trade.pnl != null && (
+                <span className={cn(
+                  "text-[11px] font-bold font-mono px-2 py-0.5 rounded-md border",
+                  trade.pnl >= 0
+                    ? "bg-emerald-500/10 text-emerald-400 border-emerald-500/20"
+                    : "bg-red-500/10 text-red-400 border-red-500/20"
+                )}>
+                  {fmtPnl.format(trade.pnl)}
+                </span>
+              )}
             </div>
           </div>
 
           {/* Trade meta */}
           <div className="grid grid-cols-2 gap-x-6 gap-y-4">
             <MetaItem icon={Calendar} label="Date" value={trade.tradeDate} />
-            <MetaItem
-              icon={Clock}
-              label="Entry Timeframe"
-              value={trade.entryTimeframe}
-            />
-            {trade.po3Time && (
-              <MetaItem
-                icon={BarChart2}
-                label="PO3 Time"
-                value={trade.po3Time}
-              />
-            )}
+            <MetaItem icon={Clock} label="Entry Timeframe" value={trade.entryTimeframe} />
+            {trade.po3Time && <MetaItem icon={BarChart2} label="PO3 Time" value={trade.po3Time} />}
             <MetaItem icon={Star} label="Setup Rating" value={trade.rating} />
-            {trade.dol && trade.dol.length > 0 && (
-              <MetaItem
-                icon={Target}
-                label="DOL"
-                value={trade.dol.join(", ")}
-              />
-            )}
-            {trade.model && trade.model.length > 0 && (
-              <MetaItem
-                icon={Activity}
-                label="Models"
-                value={trade.model.join(", ")}
-              />
-            )}
+            {trade.dol && trade.dol.length > 0 && <MetaItem icon={Target} label="DOL" value={trade.dol.join(", ")} />}
+            {trade.model && trade.model.length > 0 && <MetaItem icon={Activity} label="Models" value={trade.model.join(", ")} />}
           </div>
 
           <Separator className="opacity-50" />

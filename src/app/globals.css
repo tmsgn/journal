@@ -1,3 +1,4 @@
+@import url("https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap");
 @import "tailwindcss";
 @import "tw-animate-css";
 @import "shadcn/tailwind.css";
@@ -7,7 +8,7 @@
 @theme inline {
   --color-background: var(--background);
   --color-foreground: var(--foreground);
-  --font-sans: var(--font-geist-sans);
+  --font-sans: "Inter", var(--font-geist-sans), ui-sans-serif, system-ui;
   --font-mono: var(--font-geist-mono);
   --color-sidebar-ring: var(--sidebar-ring);
   --color-sidebar-border: var(--sidebar-border);
@@ -46,105 +47,105 @@
 }
 
 /* ───────────────────────────────────────────
-   LIGHT THEME (default)
-   Inspired by Bloomberg/trading terminal aesthetics
-   Clean, warm cream backgrounds with emerald accents
+   LIGHT THEME — Professional trading terminal
+   Clean slate backgrounds with teal/emerald accent
 ─────────────────────────────────────────── */
 :root {
-  --radius: 0.625rem;
+  --radius: 0.75rem;
 
-  --background: oklch(0.975 0.005 240);
-  --foreground: oklch(0.18 0.015 250);
+  --background: oklch(0.97 0.003 250);
+  --foreground: oklch(0.15 0.018 258);
 
   --card: oklch(1 0 0);
-  --card-foreground: oklch(0.18 0.015 250);
+  --card-foreground: oklch(0.15 0.018 258);
 
   --popover: oklch(1 0 0);
-  --popover-foreground: oklch(0.18 0.015 250);
+  --popover-foreground: oklch(0.15 0.018 258);
 
-  /* Emerald green — primary accent */
-  --primary: oklch(0.54 0.18 163);
-  --primary-foreground: oklch(0.98 0.005 160);
+  /* Teal-emerald primary */
+  --primary: oklch(0.52 0.19 175);
+  --primary-foreground: oklch(0.98 0.005 175);
 
-  --secondary: oklch(0.94 0.008 240);
-  --secondary-foreground: oklch(0.25 0.015 250);
+  --secondary: oklch(0.94 0.006 248);
+  --secondary-foreground: oklch(0.22 0.018 258);
 
-  --muted: oklch(0.94 0.008 240);
-  --muted-foreground: oklch(0.52 0.02 250);
+  --muted: oklch(0.94 0.006 248);
+  --muted-foreground: oklch(0.50 0.022 255);
 
-  --accent: oklch(0.92 0.025 163);
-  --accent-foreground: oklch(0.35 0.12 163);
+  --accent: oklch(0.91 0.026 175);
+  --accent-foreground: oklch(0.32 0.14 175);
 
-  --destructive: oklch(0.55 0.22 25);
+  --destructive: oklch(0.54 0.22 25);
 
-  --border: oklch(0.88 0.01 240);
-  --input: oklch(0.9 0.01 240);
-  --ring: oklch(0.54 0.18 163);
+  --border: oklch(0.88 0.008 248);
+  --input: oklch(0.91 0.01 248);
+  --ring: oklch(0.52 0.19 175);
 
   /* Charts */
-  --chart-1: oklch(0.54 0.18 163); /* emerald */
-  --chart-2: oklch(0.52 0.18 250); /* blue */
-  --chart-3: oklch(0.7 0.16 85); /* amber */
-  --chart-4: oklch(0.55 0.2 295); /* violet */
-  --chart-5: oklch(0.55 0.22 25); /* red */
+  --chart-1: oklch(0.52 0.19 175);  /* teal */
+  --chart-2: oklch(0.52 0.18 250);  /* blue */
+  --chart-3: oklch(0.70 0.16 85);   /* amber */
+  --chart-4: oklch(0.55 0.20 295);  /* violet */
+  --chart-5: oklch(0.55 0.22 25);   /* red */
 
-  /* Sidebar — light: clean soft panel */
-  --sidebar: oklch(0.985 0.005 250);
-  --sidebar-foreground: oklch(0.25 0.018 255);
-  --sidebar-primary: oklch(0.54 0.18 163);
-  --sidebar-primary-foreground: oklch(0.98 0.005 160);
+  /* Sidebar */
+  --sidebar: oklch(0.985 0.004 252);
+  --sidebar-foreground: oklch(0.22 0.018 258);
+  --sidebar-primary: oklch(0.52 0.19 175);
+  --sidebar-primary-foreground: oklch(0.98 0.005 175);
   --sidebar-accent: oklch(0.93 0.01 250);
-  --sidebar-accent-foreground: oklch(0.35 0.12 163);
-  --sidebar-border: oklch(0.89 0.01 250);
-  --sidebar-ring: oklch(0.54 0.18 163);
+  --sidebar-accent-foreground: oklch(0.32 0.14 175);
+  --sidebar-border: oklch(0.89 0.009 252);
+  --sidebar-ring: oklch(0.52 0.19 175);
 }
 
 /* ───────────────────────────────────────────
-   DARK THEME
-   Deep slate with emerald — premium terminal feel
+   DARK THEME — Deep professional terminal
+   Near-black with teal accent — premium feel
 ─────────────────────────────────────────── */
 .dark {
-  --background: oklch(0.115 0.014 258);
-  --foreground: oklch(0.93 0.008 240);
+  --background: oklch(0.102 0.012 260);
+  --foreground: oklch(0.93 0.008 242);
 
-  --card: oklch(0.155 0.016 260);
-  --card-foreground: oklch(0.93 0.008 240);
+  --card: oklch(0.145 0.014 262);
+  --card-foreground: oklch(0.93 0.008 242);
 
-  --popover: oklch(0.17 0.016 260);
-  --popover-foreground: oklch(0.93 0.008 240);
+  --popover: oklch(0.165 0.015 262);
+  --popover-foreground: oklch(0.93 0.008 242);
 
-  --primary: oklch(0.68 0.17 163);
-  --primary-foreground: oklch(0.1 0.01 265);
+  /* Bright teal-emerald accent */
+  --primary: oklch(0.70 0.175 175);
+  --primary-foreground: oklch(0.08 0.012 268);
 
-  --secondary: oklch(0.22 0.018 260);
-  --secondary-foreground: oklch(0.85 0.01 240);
+  --secondary: oklch(0.21 0.016 260);
+  --secondary-foreground: oklch(0.85 0.010 242);
 
-  --muted: oklch(0.2 0.015 260);
-  --muted-foreground: oklch(0.55 0.02 250);
+  --muted: oklch(0.19 0.013 260);
+  --muted-foreground: oklch(0.54 0.020 252);
 
-  --accent: oklch(0.22 0.028 190);
-  --accent-foreground: oklch(0.68 0.17 163);
+  --accent: oklch(0.21 0.030 192);
+  --accent-foreground: oklch(0.70 0.175 175);
 
-  --destructive: oklch(0.62 0.22 25);
+  --destructive: oklch(0.60 0.22 25);
 
-  --border: oklch(0.28 0.015 260);
-  --input: oklch(0.23 0.018 260);
-  --ring: oklch(0.68 0.17 163);
+  --border: oklch(0.26 0.013 262);
+  --input: oklch(0.22 0.016 262);
+  --ring: oklch(0.70 0.175 175);
 
-  --chart-1: oklch(0.68 0.17 163);
-  --chart-2: oklch(0.62 0.18 220);
-  --chart-3: oklch(0.74 0.16 85);
-  --chart-4: oklch(0.6 0.22 295);
-  --chart-5: oklch(0.6 0.22 25);
+  --chart-1: oklch(0.70 0.175 175);  /* teal */
+  --chart-2: oklch(0.62 0.18 222);   /* blue */
+  --chart-3: oklch(0.75 0.16 85);    /* amber */
+  --chart-4: oklch(0.62 0.22 295);   /* violet */
+  --chart-5: oklch(0.60 0.22 25);    /* red */
 
-  --sidebar: oklch(0.085 0.014 258);
-  --sidebar-foreground: oklch(0.85 0.008 240);
-  --sidebar-primary: oklch(0.68 0.17 163);
-  --sidebar-primary-foreground: oklch(0.1 0.01 265);
-  --sidebar-accent: oklch(0.18 0.018 258);
-  --sidebar-accent-foreground: oklch(0.68 0.17 163);
-  --sidebar-border: oklch(0.2 0.014 258);
-  --sidebar-ring: oklch(0.68 0.17 163);
+  --sidebar: oklch(0.075 0.012 260);
+  --sidebar-foreground: oklch(0.86 0.008 242);
+  --sidebar-primary: oklch(0.70 0.175 175);
+  --sidebar-primary-foreground: oklch(0.08 0.012 268);
+  --sidebar-accent: oklch(0.17 0.016 260);
+  --sidebar-accent-foreground: oklch(0.70 0.175 175);
+  --sidebar-border: oklch(0.19 0.013 260);
+  --sidebar-ring: oklch(0.70 0.175 175);
 }
 
 @layer base {
@@ -153,16 +154,19 @@
   }
   body {
     @apply bg-background text-foreground;
+    font-family: "Inter", var(--font-geist-sans), ui-sans-serif, system-ui;
     font-feature-settings:
       "rlig" 1,
       "calt" 1;
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
   }
 }
 
 /* ── Custom scrollbar ── */
 ::-webkit-scrollbar {
-  width: 5px;
-  height: 5px;
+  width: 4px;
+  height: 4px;
 }
 ::-webkit-scrollbar-track {
   background: transparent;
@@ -173,67 +177,137 @@
 }
 ::-webkit-scrollbar-thumb:hover {
   background: var(--primary);
-  opacity: 0.6;
+  opacity: 0.7;
 }
 
-/* ── Trading-specific utilities ── */
-
-/* Stat card glow on hover */
-.stat-card-glow:hover {
-  box-shadow:
-    0 0 0 1px oklch(0.54 0.18 163 / 30%),
-    0 4px 24px oklch(0.54 0.18 163 / 8%);
-}
-.dark .stat-card-glow:hover {
-  box-shadow:
-    0 0 0 1px oklch(0.68 0.17 163 / 30%),
-    0 4px 24px oklch(0.68 0.17 163 / 12%);
-}
-
-/* Number ticker font */
-.font-trading {
-  font-variant-numeric: tabular-nums;
-  letter-spacing: -0.01em;
-}
-
-/* ── Subtle radial glow background for main content ── */
+/* ── Background glow for main content ── */
 .journal-bg {
   background-color: var(--background);
   background-image:
     radial-gradient(
-      ellipse 80% 60% at 50% -5%,
-      oklch(0.54 0.18 163 / 7%) 0%,
+      ellipse 70% 50% at 50% -10%,
+      oklch(0.52 0.19 175 / 6%) 0%,
       transparent 70%
     ),
     radial-gradient(
-      ellipse 50% 40% at 95% 95%,
-      oklch(0.52 0.18 250 / 5%) 0%,
+      ellipse 40% 30% at 90% 90%,
+      oklch(0.52 0.18 250 / 4%) 0%,
       transparent 60%
     );
 }
 .dark .journal-bg {
   background-image:
     radial-gradient(
-      ellipse 80% 60% at 50% -5%,
-      oklch(0.68 0.17 163 / 9%) 0%,
+      ellipse 70% 50% at 50% -10%,
+      oklch(0.70 0.175 175 / 8%) 0%,
       transparent 70%
     ),
     radial-gradient(
-      ellipse 50% 40% at 95% 95%,
-      oklch(0.62 0.18 220 / 6%) 0%,
+      ellipse 40% 30% at 90% 90%,
+      oklch(0.62 0.18 222 / 5%) 0%,
       transparent 60%
     );
 }
 
-/* Card shine effect */
-.card-shine {
-  position: relative;
+/* ── Stat card glow ── */
+.stat-card-glow:hover {
+  box-shadow:
+    0 0 0 1px oklch(0.52 0.19 175 / 25%),
+    0 8px 32px oklch(0.52 0.19 175 / 8%);
+}
+.dark .stat-card-glow:hover {
+  box-shadow:
+    0 0 0 1px oklch(0.70 0.175 175 / 25%),
+    0 8px 32px oklch(0.70 0.175 175 / 12%);
+}
+
+/* ── Positive / Negative P&L colors ── */
+.pnl-up {
+  color: oklch(0.58 0.18 155);
+}
+.dark .pnl-up {
+  color: oklch(0.72 0.175 155);
+}
+.pnl-down {
+  color: oklch(0.55 0.20 25);
+}
+.dark .pnl-down {
+  color: oklch(0.65 0.22 25);
+}
+
+/* ── Trading number font ── */
+.font-trading {
+  font-variant-numeric: tabular-nums;
+  letter-spacing: -0.02em;
+}
+
+/* ── Card glass effect ── */
+.card-glass {
+  background: oklch(1 0 0 / 70%);
+  backdrop-filter: blur(12px);
+  border: 1px solid oklch(0.88 0.008 248);
+}
+.dark .card-glass {
+  background: oklch(0.145 0.014 262 / 80%);
+  backdrop-filter: blur(12px);
+  border: 1px solid oklch(0.26 0.013 262);
+}
+
+/* ── Gradient text ── */
+.gradient-text {
+  background: linear-gradient(135deg, oklch(0.70 0.175 175), oklch(0.62 0.18 222));
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+}
+
+/* ── Progress bar ── */
+.progress-track {
+  background: var(--muted);
+  border-radius: 9999px;
+  height: 6px;
   overflow: hidden;
 }
+.progress-fill {
+  height: 100%;
+  border-radius: 9999px;
+  background: linear-gradient(90deg, var(--primary), oklch(0.62 0.18 222));
+  transition: width 0.5s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+/* ── Direction badges ── */
+.badge-long {
+  background: oklch(0.52 0.19 175 / 15%);
+  color: oklch(0.52 0.19 175);
+  border: 1px solid oklch(0.52 0.19 175 / 30%);
+}
+.dark .badge-long {
+  background: oklch(0.70 0.175 175 / 12%);
+  color: oklch(0.70 0.175 175);
+  border-color: oklch(0.70 0.175 175 / 25%);
+}
+.badge-short {
+  background: oklch(0.55 0.22 25 / 15%);
+  color: oklch(0.55 0.22 25);
+  border: 1px solid oklch(0.55 0.22 25 / 30%);
+}
+.dark .badge-short {
+  background: oklch(0.60 0.22 25 / 12%);
+  color: oklch(0.65 0.22 25);
+  border-color: oklch(0.65 0.22 25 / 25%);
+}
+
+/* ── Chart area gradient ── */
+.recharts-area-curve {
+  filter: drop-shadow(0 2px 8px oklch(0.52 0.19 175 / 20%));
+}
+
+/* ── Shine on cards ── */
 .card-shine::before {
   content: "";
   position: absolute;
   inset: 0;
-  background: linear-gradient(135deg, oklch(1 0 0 / 4%) 0%, transparent 50%);
+  background: linear-gradient(135deg, oklch(1 0 0 / 3%) 0%, transparent 60%);
   pointer-events: none;
+  border-radius: inherit;
 }

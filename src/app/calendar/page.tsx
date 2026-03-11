@@ -86,7 +86,7 @@ export default function CalendarPage() {
           trade.outcome === "win"
             ? Number(trade.rr)
             : trade.outcome === "loss"
-              ? -Math.max(Number(trade.rr), 1)
+              ? -1
               : 0;
       } else {
         map.set(trade.tradeDate, {
@@ -99,7 +99,7 @@ export default function CalendarPage() {
             trade.outcome === "win"
               ? Number(trade.rr)
               : trade.outcome === "loss"
-                ? -Math.max(Number(trade.rr), 1)
+                ? -1
                 : 0,
         });
       }

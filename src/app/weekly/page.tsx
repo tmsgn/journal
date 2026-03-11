@@ -125,7 +125,7 @@ export default function WeeklyPage() {
         trade.outcome === "win"
           ? Number(trade.rr)
           : trade.outcome === "loss"
-            ? -Math.max(Number(trade.rr), 1)
+            ? -1
             : 0;
       summary.netRR += rrContrib;
 
@@ -183,7 +183,7 @@ export default function WeeklyPage() {
         trade.outcome === "win"
           ? Number(trade.rr)
           : trade.outcome === "loss"
-            ? -Math.max(Number(trade.rr), 1)
+            ? -1
             : 0;
       map[dow].total++;
       map[dow].netRR += rrContrib;
